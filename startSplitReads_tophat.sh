@@ -1,6 +1,7 @@
 #!/bin/bash
 
 SAMPLE_ID=$1
+NODE_COUNT=$2
 
 echo "Began $SAMPLE_ID test at `date`" > splitbam.${SAMPLE_ID}.timeCount.txt
 
@@ -11,6 +12,13 @@ if [ -z ${SAMPLE_ID} ]; then
 	echo "you must define SAMPLE_ID!"; 
 	exit
 fi
+
+#First check if we said how many nodes...
+if [ -z ${NODE_COUNT} ]; then 
+	echo "you must define NODE_COUNT!"
+	exit
+fi
+
 
 mkdir -p jobLogs
 
@@ -24,7 +32,7 @@ echo -ne "\nJOB PATH: ${JOB_PATH}\n"
 echo "${SAMPLE_ID} ${JOB_PATH}" > ${HOME}/SCRIPTS/parallelize_tophat/tophat2/messages/${SAMPLE_ID}.started
 
 splitJob=`qsub \
- -v SAMPLE_ID=${SAMPLE_ID},FQ1=${FQ1},FQ2=${FQ2},JOB_PATH=${JOB_PATH} \
+ -v SAMPLE_ID=${SAMPLE_ID},FQ1=${FQ1},FQ2=${FQ2},JOB_PATH=${JOB_PATH},NODE_COUNT=$NODE_COUNT \
  -d ${JOB_PATH} \
  -N ${SAMPLE_ID}.Split \
  ~/SCRIPTS/parallelize_tophat/tophat2/make_split_reads.pbs | sed -e 's/.newmoab.local//g'`

@@ -14,30 +14,37 @@ cd $JOB_PATH
 START=$(date +%s)
 
 # 1M read splits for now..
-FQLINES=4000000
-#FQLINES=2000000
-READSPLIT=`echo "$FQLINES / 4" | bc`
+#FQLINES=4000000
+#READSPLIT=`echo "$FQLINES / 4" | bc`
 
-echo "We are splitting fastqs to `echo $FQLINES / 4 | bc` reads/job"
+FQLINES=`zcat ${FQ1} | wc -l`
+READ_COUNT=`echo "$FQLINES / 4" | bc`
+
+echo "We have ${READ_COUNT} paired reads to split"
+
+READS_PER_NODE=`printf "%.0f" $(echo "${READ_COUNT} / ${NODE_COUNT}" | bc`)
+
+READS_PER_SPLIT=`echo $READ_COUNT * 4`
+
+
+echo "We are splitting fastqs to $READS_PER_SPLIT  reads/job"
 
 echo -ne "\n`date` splitting ${FQ1} & ${FQ2} begun in ${PWD}\n\n"
 
-zcat ${FQ1} | split -a 3 -d -l ${FQLINES} - R1 &
-zcat ${FQ2} | split -a 3 -d -l ${FQLINES} - R2 &
+zcat ${FQ1} | split -a 3 -d -l ${READS_PER_SPLIT} - R1 &
+zcat ${FQ2} | split -a 3 -d -l ${READS_PER_SPLIT} - R2 &
 
 wait
 
 echo -ne "\n\nSplits done, just counting now "
 bash ~/SCRIPTS/TimeOut.sh ${START}
 
-READCOUNT=`zcat ${FQ1} | wc -l`
-SPLITS=`echo "${READCOUNT} / ${FQLINES}" | bc`
-READCOUNT=`echo "${READCOUNT} / 4" | bc`
+SPLITS=`echo "${READ_COUNT} / ${READS_PER_SPLIT}" | bc`
 
 echo -ne "\n\nGetting read count complete `bash ~/SCRIPTS/TimeOut.sh ${START}`"
 
-echo -ne "\nThere are ${READCOUNT} paired reads into ${SPLITS} splits of $READSPLIT / fastq "
-echo -ne "\n\nThere are ${READCOUNT} paired reads into ${SPLITS} splits of $READSPLIT / fastq \n\n" >> ${JOB_PATH}/${SAMPLE_ID}.cron.log
+echo -ne "\nThere are ${READ_COUNT} paired reads into ${SPLITS} for $READS_PER_SPLIT / fastq "
+echo -ne "\nThere are ${READ_COUNT} paired reads into ${SPLITS} for $READS_PER_SPLIT / fastq \n\n" >> ${JOB_PATH}/${SAMPLE_ID}.cron.log
 
 ls R1* | grep -v sai | sed -e 's/R1//g' > ~/SCRIPTS/parallelize_tophat/tophat2/messages/${SAMPLE_ID}.suffs.txt
 
