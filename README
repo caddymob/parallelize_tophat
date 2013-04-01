@@ -3,7 +3,9 @@
 ~ Parallelize tophat. A cluster computing PBS based approach to Parallelize tophat!
 ~ by Jason Corneveaux, Bioinformatician, TGen Neurogenomics
 ~ 02/13/2012
-~ 
+~
+~ Began updates 3/27/2013
+~
 *=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*==
 
 This collection of PBS scripts splits up big FASTQ files and submits them
