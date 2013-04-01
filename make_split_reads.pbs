@@ -1,0 +1,42 @@
+####Parameterized PBS Script ####
+#PBS -S /bin/bash
+#PBS -l walltime=02:00:00
+#PBS -o ${HOME}/jobOuts/${PBS_JOBNAME}_${PBS_JOBID}.o
+#PBS -l nodes=1:ppn=2
+#PBS -j oe
+#PBS -M jcorneveaux@tgen.org
+#PBS -m abe
+
+cd $JOB_PATH
+
+START=$(date +%s)
+
+# 1M read splits for now..
+FQLINES=4000000
+#FQLINES=2000000
+READSPLIT=`echo "$FQLINES / 4" | bc`
+
+echo "We are splitting fastqs to `echo $FQLINES / 4 | bc` reads/job"
+
+echo -ne "\n`date` splitting ${FQ1} & ${FQ2} begun in ${PWD}\n\n"
+
+zcat ${FQ1} | split -a 3 -d -l ${FQLINES} - R1 &
+zcat ${FQ2} | split -a 3 -d -l ${FQLINES} - R2 &
+
+wait
+
+echo -ne "\n\nSplits done, just counting now "
+bash ~/SCRIPTS/TimeOut.sh ${START}
+
+READCOUNT=`zcat ${FQ1} | wc -l`
+SPLITS=`echo "${READCOUNT} / ${FQLINES}" | bc`
+READCOUNT=`echo "${READCOUNT} / 4" | bc`
+
+echo -ne "\n\nGetting read count complete `bash ~/SCRIPTS/TimeOut.sh ${START}`"
+
+echo -ne "\nThere are ${READCOUNT} paired reads into ${SPLITS} splits of $READSPLIT / fastq "
+echo -ne "\n\nThere are ${READCOUNT} paired reads into ${SPLITS} splits of $READSPLIT / fastq \n\n" >> ${JOB_PATH}/${SAMPLE_ID}.cron.log
+
+ls R1* | grep -v sai | sed -e 's/R1//g' > ~/SCRIPTS/parallelize_tophat/tophat2/messages/${SAMPLE_ID}.suffs.txt
+
+bash ~/SCRIPTS/TimeOut.sh ${START}

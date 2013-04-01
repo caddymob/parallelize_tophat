@@ -1,0 +1,20 @@
+*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*==
+~
+~ Parallelize tophat. A cluster computing PBS based approach to Parallelize tophat!
+~ by Jason Corneveaux, Bioinformatician, TGen Neurogenomics
+~ 02/13/2012
+~ 
+*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*==
+
+This collection of PBS scripts splits up big FASTQ files and submits them
+to a PBS queue system to tophat2 align, then merge back together and run
+through cufflinks. 
+
+Fastq format needs to be ${SAMPLE_ID}.R1.QC.fq.gz and ${SAMPLE_ID}.R2.QC.fq.gz 
+
+Run it in the directory with your samples. 
+
+
+bash ~/SCRIPTS/parallelize_tophat/tophat2/startSplitReads_tophat.sh ${SAMPLE_ID}
+
+Divide and conquer!

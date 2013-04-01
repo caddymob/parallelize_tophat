@@ -1,0 +1,37 @@
+####Parameterized PBS Script ####
+#PBS -S /bin/bash
+#PBS -l walltime=36:00:00
+#PBS -l nodes=1:ppn=12
+#PBS -o /users/jcorneveaux/jobOuts/${PBS_JOBNAME}_${PBS_JOBID}.o
+#PBS -j oe
+#PBS -M jcorneveaux@tgen.org
+#PBS -m abe
+
+THISSTART=$(date +%s)
+
+module load java/1.6.0_30 #saguaro
+module load r/2.13.0 #saguaro
+module load R/2.14.1 #dell
+module load samtools/0.1.18 #dell
+
+echo "samtools: `which samtools`"
+
+cd ${JOB_PATH}
+
+#set up environment variables
+source ~/SCRIPTS/parallelize_tophat/tophat2/export_paths-IDs_tophat-cufflinks.sh ${SAMPLE_ID}
+
+#SAMPLE_ID is just the suffix!
+
+MYNODE=`hostname | cut -f1 -d "."`
+MYNODESET=`pbsnodes | grep -A3 $MYNODE | cut -f1 -d "." | grep properties | awk '{print $3}' | cut -f1 -d ','`
+
+echo -ne "\nbegin RunTopHat2.sh ${PBS_JOBNAME} on ${MYNODE} (${MYNODESET} nodeset) at `date`\n\n\n"
+
+bash ~/SCRIPTS/parallelize_tophat/tophat2/RunTopHat2.sh ${SAMPLE_ID} ${JOB_PATH} ${SUFFIX}
+
+echo -ne "\nComplete RunTopHat2.sh ${PBS_JOBNAME} ${PBS_JOBID} on `hostname` with ${THREADS} threads with exit ($?) at `date`\n\nexit status($?)\n"
+
+echo -ne "\nTime taken was: "
+bash ~/SCRIPTS/TimeOut.sh ${THISSTART}
+
