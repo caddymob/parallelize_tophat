@@ -5,7 +5,7 @@ NODE_COUNT=$2
 
 echo "Began $SAMPLE_ID test at `date`" > splitbam.${SAMPLE_ID}.timeCount.txt
 
-rm ~/SCRIPTS/parallelize_tophat/tophat2/messages/${SAMPLE_ID}.*
+rm -f ~/SCRIPTS/parallelize_tophat/tophat2/messages/${SAMPLE_ID}.*
 
 #First check if we gave the FQs to split!
 if [ -z ${SAMPLE_ID} ]; then 
