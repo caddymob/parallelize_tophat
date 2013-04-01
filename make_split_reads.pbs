@@ -1,9 +1,11 @@
 ####Parameterized PBS Script ####
+#PBS -A tgen-204000
 #PBS -S /bin/bash
 #PBS -l walltime=02:00:00
 #PBS -o ${HOME}/jobOuts/${PBS_JOBNAME}_${PBS_JOBID}.o
 #PBS -l nodes=1:ppn=2
 #PBS -j oe
+#PBS -V
 #PBS -M jcorneveaux@tgen.org
 #PBS -m abe
 

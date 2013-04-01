@@ -23,7 +23,7 @@ do
 						-v SAMPLE_ID=${SAMPLE_ID},SUFFIX=${suffix},JOB_PATH=${JOB_PATH} \
 						-d ${JOB_PATH} \
 						-N ${SAMPLE_ID}_${suffix} \
-						~/SCRIPTS/parallelize_tophat/tophat2/InferInsert_run_tophat_split-reads.pbs | sed -e 's/.newmoab.local//g'`
+						~/pbsSCRIPTS/InferInsert_run_tophat2.pbs | sed -e 's/.newmoab.local//g'`
 					
 					if [ $? -ne 0 ]; then
 						echo -e "ERROR! ${suffix}_${SAMPLE_ID} did not submit right with exit ($?).... \nnap for a sec...."
@@ -34,7 +34,7 @@ do
 							-v SAMPLE_ID=${SAMPLE_ID},SUFFIX=${suffix},JOB_PATH=${JOB_PATH} \
 							-d ${JOB_PATH} \
 							-N ${SAMPLE_ID}_${suffix} \
-							~/SCRIPTS/parallelize_tophat/tophat2/InferInsert_run_tophat_split-reads.pbs | sed -e 's/.newmoab.local//g'`
+							~/pbsSCRIPTS/InferInsert_run_tophat2.pbs | sed -e 's/.newmoab.local//g'`
 						
 						echo -ne "Re-Submitted ${suffix} for ${SAMPLE_ID} with jobID: ${tmpName} - exit = ($?)\n"
 						sleep 30
