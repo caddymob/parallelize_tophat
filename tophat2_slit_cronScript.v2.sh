@@ -74,18 +74,18 @@ do
 			
 		## INSERT CUFFLINKS HERE ##
 			cuffJob=`qsub -W depend=afterok:${mergeJob} \
-			-V JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID}
+			-v JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID} \
 			-N ${SAMPLE_ID}.cuff \
 			~/SCRIPTS/parallelize_tophat/tophat2/Run_Cufflinks.pbs`
 	
 			echo -ne "\n cufflinks is started with jobID: $cuffJob\n"
 		
 			cleanJob=`qsub -W depend=afterok:${cuffJob} \
-			-V JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID}
-			-N ${SAMPLE_ID}.cuff \
+			-v JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID} \
+			-N ${SAMPLE_ID}.clean \
 			~/SCRIPTS/parallelize_tophat/tophat2/clean_up.pbs`
 		
-			echo -ne "\n cleanup is started with jobID: $cuffJob\n"
+			echo -ne "\n cleanup is started with jobID: $cleanJob\n"
 			
 			echo -ne "\n#### Removing crontab entry for ${SAMPLE_ID} ####\n"
 			crontab -l | grep ${SAMPLE_ID}

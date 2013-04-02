@@ -27,13 +27,13 @@ source ~/SCRIPTS/parallelize_tophat/tophat2/export_paths-IDs_tophat-cufflinks.sh
 #read2=`echo ${SAMPLE_ID}.R2.QC.fq.gz`
 
 read1=R1${SUFFIX}
-read1=R2${SUFFIX}
+read2=R2${SUFFIX}
 
 echo "begin ${SAMPLE_ID} on `hostname` at `date`"
 
 echo "calculating combined read length for ${read1} and ${read2}"
-read1Length=$(zcat $read1 | head -2 | tail -1 | wc -c)
-read2Length=$(zcat $read2 | head -2 | tail -1 | wc -c)
+read1Length=$(cat $read1 | head -2 | tail -1 | wc -c)
+read2Length=$(cat $read2 | head -2 | tail -1 | wc -c)
 combinedLength=`echo "$read1Length + $read2Length - 2" | bc`
 
 echo "${read1} is ${read1Length} and ${read2} is ${read2Length} for combined length of ${combinedLength}"
@@ -41,13 +41,13 @@ BWASTART=$(date +%s)
 #ssh jcorneveaux@pnap-login1 ~/SCRIPTS/PipeCleanerUpdate.sh ${SAMPLE_ID} insert_size warning rna
 
 ######## BWA ALIGN READ 1 & 2 #####
-zcat ${read1} | head -4000000 | gzip > ${SAMPLE_ID}_R1${SUFFIX}.1M.fq.gz &
-zcat ${read2} | head -4000000 | gzip > ${SAMPLE_ID}_R2${SUFFIX}.1M.fq.gz &
+head -4000000 ${read1} > ${SAMPLE_ID}_R1${SUFFIX}.1M.fq &
+head -4000000 ${read2} > ${SAMPLE_ID}_R2${SUFFIX}.1M.fq &
 
 wait
 
-${BWA} aln -t ${ALN_THREADS} ${BWA_REF} ${SAMPLE_ID}_R1${SUFFIX}.1M.fq.gz > ${SAMPLE_ID}_R1${SUFFIX}.1M.sai &
-${BWA} aln -t ${ALN_THREADS} ${BWA_REF} ${SAMPLE_ID}_R2${SUFFIX}.1M.fq.gz > ${SAMPLE_ID}_R2${SUFFIX}.1M.sai &
+${BWA} aln -t ${ALN_THREADS} ${BWA_REF} ${SAMPLE_ID}_R1${SUFFIX}.1M.fq > ${SAMPLE_ID}_R1${SUFFIX}.1M.sai &
+${BWA} aln -t ${ALN_THREADS} ${BWA_REF} ${SAMPLE_ID}_R2${SUFFIX}.1M.fq > ${SAMPLE_ID}_R2${SUFFIX}.1M.sai &
 
 wait
 
@@ -55,13 +55,13 @@ echo "bwa aln is done for read 1 and 2, begin pairing"
 
 ####### BWA SAMPE, SORT "${SAMPLE_ID}" #####
 ${BWA} sampe \
--r "@RG\tID:${SAMPLE_ID}_${DATE}\tSM:${SAMPLE_ID}\tPL:ILLUMINA\tLB:${SAMPLE_ID}_Lib1" \
 -P ${BWA_REF} \
 -t ${THREADS} \
-${SAMPLE_ID}_R1${SUFFIX}.1M.sai ${SAMPLE_ID}_R1${SUFFIX}.1M.sai ${SAMPLE_ID}_R1${SUFFIX}.1M.fq.gz ${SAMPLE_ID}_R1${SUFFIX}.1M.fq.gz | \
+${SAMPLE_ID}_R1${SUFFIX}.1M.sai ${SAMPLE_ID}_R1${SUFFIX}.1M.sai ${SAMPLE_ID}_R1${SUFFIX}.1M.fq ${SAMPLE_ID}_R1${SUFFIX}.1M.fq | \
 ${SAMTOOLS} view -S -h -b -t ${BWA_REF}.fai - | \
 ${SAMTOOLS} sort - ${SAMPLE_ID}_${SUFFIX}.rnaInsert.sorted 
 
+#-r "@RG\tID:${SAMPLE_ID}_${DATE}\tSM:${SAMPLE_ID}\tPL:ILLUMINA\tLB:${SAMPLE_ID}_Lib1" \ # dont need for infering insert, do we?
 if [[ $? -ne 0 ]]; then
 	echo "something went wrong with sampe, time to go"
   exit
@@ -78,8 +78,8 @@ LEVEL=ALL_READS 2>&1
 echo "getting insert size metrics with picard is DONE."
 
 echo "reading insert size from picard output"
-INNERDIST=`head -n 8 ${SAMPLE_ID}.picInsertMetrics.txt | tail -n 1 | cut -f5 | awk -v var1="$combinedLength" '{printf "%.0f\n", $1-var1}'`
-STDEV=`head -n 8 ${SAMPLE_ID}.picInsertMetrics.txt | tail -n 1 | cut -f6 | awk '{printf "%.0f\n", $1}'`
+INNERDIST=`head -n 8 ${SAMPLE_ID}_${SUFFIX}.picInsertMetrics.txt | tail -n 1 | cut -f5 | awk -v var1="$combinedLength" '{printf "%.0f\n", $1-var1}'`
+STDEV=`head -n 8 ${SAMPLE_ID}_${SUFFIX}.picInsertMetrics.txt | tail -n 1 | cut -f6 | awk '{printf "%.0f\n", $1}'`
 echo "COMBINED READ LENGTH=$combinedLength (from $read1Length and $read2Length - 2)"
 echo "got INNERDIST=${INNERDIST} and STDEV=${STDEV}"
 
@@ -87,11 +87,11 @@ echo "got INNERDIST=${INNERDIST} and STDEV=${STDEV}"
 
 rm ${SAMPLE_ID}_${SUFFIX}.picInsertMetrics.pdf &
 rm ${SAMPLE_ID}_${SUFFIX}.rnaInsert.sorted.bam &
-rm ${SAMPLE_ID}_${SUFFIX}.R1${SUFFIX}.1M.sai &
-rm ${SAMPLE_ID}_${SUFFIX}.R2${SUFFIX}.1M.sai &
+rm ${SAMPLE_ID}_R1${SUFFIX}.1M.sai &
+rm ${SAMPLE_ID}_R2${SUFFIX}.1M.sai
 rm ${SAMPLE_ID}_${SUFFIX}.picInsertMetrics.txt &
-rm ${SAMPLE_ID}_${SUFFIX}.R1.1M.fq.gz &
-rm ${SAMPLE_ID}_${SUFFIX}.R2.1M.fq.gz &
+rm ${SAMPLE_ID}_R1${SUFFIX}.1M.fq &
+rm ${SAMPLE_ID}_R2${SUFFIX}.1M.fq &
 
 echo -ne "\n\n`ls ${read1} ${read2}`\n\n BWA pairing took `bash ~/SCRIPTS/TimeOut.sh ${BWASTART}`\n begin tophat"
 
@@ -123,4 +123,8 @@ if [[ $EXITSTAT -ne 0 ]]; then
 	echo "something went wrong with tophat, time to go"
   exit
 fi
+
+rm R1${SUFFIX}
+rm R2${SUFFIX}
+
 echo "\nTophat complete. Time: `bash ~/SCRIPTS/TimeOut.sh ${TOPSTART}`\n"

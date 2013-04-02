@@ -55,6 +55,23 @@ zcat ${FQ2} | split -a 3 -d -l ${READS_PER_SPLIT} - R2 &
 
 wait
 
+## ADD A CHECK TO MAKE SURE WE DONT HAVE FILES WITH SMALL N reads MAKING PICARD FAIL ##
+## Because we're nice like that ##
+
+LASTFILE=`ls -1b R1* | tail -1`
+SecLASTFILE=`ls -1b R1* | tail -2 | head -1`
+LINES_LAST=`wc -l $LASTFILE | awk '{print$1}'`
+
+READ2LAST=`echo $LASTFILE | sed -e 's/R1/R2/g'`
+SecREAD2LAST=`echo $SecLASTFILE | sed -e 's/R1/R2/g'`
+
+if [ $LINES_LAST -le 10000 ]; then
+	cat $LASTFILE >> $SecLASTFILE
+	cat $READ2LAST >> $SecREAD2LAST
+	rm $LASTFILE
+	rm $READ2LAST
+fi
+
 # Sanity check - should result in NODE_COUNT
 SPLITS=`echo "${READ_COUNT} / ${READS_PER_SPLIT}" | bc`
 

@@ -9,6 +9,8 @@ else
   REF_DIR=~/resources
 fi
 
+export PATH=$PATH:${HOME}/bin
+
 export BWA=~/bin/bwa
 export CUFFCOMPARE=~/bin/CUFFLINKS/2.0.2/cuffcompare
 export CUFFLINKS=~/bin/CUFFLINKS/2.0.2/cufflinks
@@ -23,7 +25,7 @@ export MASK=${REF_DIR}/GRCh37/bowtie2_b37/Homo_sapiens.GRCh37.66.MASK.gtf
 export PICARD=~/bin/picard-tools-current/
 export BWA_REF=${REF_DIR}/GRCh37/Homo_sapiens.GRCh37.62.fa
 export SAMTOOLS=~/bin/samtools
-export TOPHAT=~/bin/tophat-2.0.4.Linux_x86_64/tophat2
+export TOPHAT=~/bin/tophat-2.0.4.Linux_x86_64/tophat
 export VCF=${REF_DIR}/GRCh37/dbSNP137.vcf
 export THREADS=`grep -c ^processor /proc/cpuinfo`
 export ALN_THREADS=`echo $THREADS / 2 | bc`
