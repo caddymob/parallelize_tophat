@@ -83,9 +83,10 @@ STDEV=`head -n 8 ${SAMPLE_ID}_${SUFFIX}.picInsertMetrics.txt | tail -n 1 | cut -
 echo "COMBINED READ LENGTH=$combinedLength (from $read1Length and $read2Length - 2)"
 echo "Picard found INNERDIST=${INNERDIST} and STDEV=${STDEV}"
 
-if [ $INNERDIST -ge 500 ]; then
+#Doing this based on previous runs
+if [ $INNERDIST -ge 400 ]; then
 	INNERDIST=50 
-	STDEV=50
+	STDEV=70
 fi
 
 echo "Based on this we will use INNERDIST=${INNERDIST} and STDEV=${STDEV}"
@@ -134,4 +135,4 @@ fi
 rm R1${SUFFIX}
 rm R2${SUFFIX}
 
-echo "\nTophat complete. Time: `bash ~/SCRIPTS/TimeOut.sh ${TOPSTART}`\n"
+echo -ne "\n\nTophat complete. Time: `bash ~/SCRIPTS/TimeOut.sh ${TOPSTART}`"
