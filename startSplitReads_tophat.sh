@@ -3,10 +3,6 @@
 SAMPLE_ID=$1
 NODE_COUNT=$2
 
-echo "Began $SAMPLE_ID test at `date`" > splitbam.${SAMPLE_ID}.timeCount.txt
-
-rm -f ~/SCRIPTS/parallelize_tophat/tophat2/messages/${SAMPLE_ID}.*
-
 #First check if we gave the FQs to split!
 if [ -z ${SAMPLE_ID} ]; then 
 	echo "you must define SAMPLE_ID!"; 
@@ -20,6 +16,14 @@ if [ -z ${NODE_COUNT} ]; then
 fi
 
 mkdir -p jobLogs
+
+START=$(date +%s)
+
+echo "Began $SAMPLE_ID test at `date`" > ./jobLogs/splitbam.${SAMPLE_ID}.timeCount.txt
+
+echo "$START" > ./jobLogs/${SAMPLE_ID}.s
+
+rm -f ~/SCRIPTS/parallelize_tophat/tophat2/messages/${SAMPLE_ID}.*
 
 FQ1=`echo ${SAMPLE_ID}.R1.QC.fq.gz`
 FQ2=`echo ${SAMPLE_ID}.R2.QC.fq.gz`

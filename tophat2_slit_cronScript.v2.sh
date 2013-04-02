@@ -51,26 +51,41 @@ do
 		
 		echo -ne "\n$jobIDs are running InferInsert_run_tophat_split-reads.pbs\n\n" 
 
-		tmpName=`qsub -W depend=afterok:${jobIDs} \
+		mergeJob=`qsub -W depend=afterok:${jobIDs} \
 		-v JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID} \
 		 -d ${JOB_PATH} \
 		 -N ${SAMPLE_ID}.merge \
 		 ~/SCRIPTS/parallelize_tophat/tophat2/merge_bam_end.v2.pbs`
 		 
-		 echo -ne "\nSubmitted ${SAMPLE_ID} merge with jobID: ${tmpName} exit = ($?)\n"
+		 echo -ne "\nSubmitted ${SAMPLE_ID} merge with jobID: ${mergeJob} exit = ($?)\n"
 
 		 if [ $? -ne 0 ]; then
 			echo -ne "ERROR! ${SAMPLE_ID} merge did not submit right...\n\n"
 			sleep 30
 			echo "Trying merge again..."
-				tmpName=`qsub -W depend=afterok:${jobIDs} \
+				mergeJob=`qsub -W depend=afterok:${jobIDs} \
 					-v JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID} \
 					-d ${JOB_PATH} \
 		 			-N ${SAMPLE_ID}.merge \
 		 			~/SCRIPTS/parallelize_tophat/tophat2/merge_bam_end.v2.pbs`
 
-					echo -ne "\nRe-Submitted ${SAMPLE_ID} merge with jobID: ${tmpName} exit = ($?)\n"
+					echo -ne "\nRe-Submitted ${SAMPLE_ID} merge with jobID: ${mergeJob} exit = ($?)\n"
 			fi
+			
+		## INSERT CUFFLINKS HERE ##
+			cuffJob=`qsub -W depend=afterok:${mergeJob} \
+			-V JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID}
+			-N ${SAMPLE_ID}.cuff \
+			~/SCRIPTS/parallelize_tophat/tophat2/Run_Cufflinks.pbs`
+	
+			echo -ne "\n cufflinks is started with jobID: $cuffJob\n"
+		
+			cleanJob=`qsub -W depend=afterok:${cuffJob} \
+			-V JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID}
+			-N ${SAMPLE_ID}.cuff \
+			~/SCRIPTS/parallelize_tophat/tophat2/clean_up.pbs`
+		
+			echo -ne "\n cleanup is started with jobID: $cuffJob\n"
 			
 			echo -ne "\n#### Removing crontab entry for ${SAMPLE_ID} ####\n"
 			crontab -l | grep ${SAMPLE_ID}

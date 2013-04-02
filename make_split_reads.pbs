@@ -5,7 +5,7 @@
 #PBS -l walltime=12:00:00
 #PBS -j oe
 #PBS -V
-#PBS -o ${HOME}/jobOuts/${PBS_JOBNAME}.${PBS_JOBID}.o
+#PBS -o ${HOME}/jobOuts/parallelize_tophat/${PBS_JOBNAME}.${PBS_JOBID}.o
 #PBS -M jcorneveaux@tgen.org
 #PBS -m abe
 

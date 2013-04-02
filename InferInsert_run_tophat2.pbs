@@ -1,0 +1,126 @@
+####Parameterized PBS Script ####
+#PBS -A tgen-204000
+#PBS -S /bin/bash
+#PBS -l walltime=96:00:00
+#PBS -l nodes=1
+#PBS -o ${HOME}/jobOuts/parallelize_tophat/${PBS_JOBNAME}_${PBS_JOBID}.o
+#PBS -M jcorneveaux@tgen.org
+#PBS -m abe
+#PBS -V
+#PBS -j oe
+
+START=$(date +%s)
+
+cd $PBS_O_WORKDIR
+
+echo $HOSTNAME | grep pnap
+if [ "$?" -eq 0 ]; then
+	TMP_DIR=/scratch/tmp
+else
+	TMP_DIR=/huentelman/tmp
+fi
+
+source ~/SCRIPTS/parallelize_tophat/tophat2/export_paths-IDs_tophat-cufflinks.sh
+
+#MUST BE PASSED FROM SCRIPT
+#read1=`echo ${SAMPLE_ID}.R1.QC.fq.gz`
+#read2=`echo ${SAMPLE_ID}.R2.QC.fq.gz`
+
+read1=R1${SUFFIX}
+read1=R2${SUFFIX}
+
+echo "begin ${SAMPLE_ID} on `hostname` at `date`"
+
+echo "calculating combined read length for ${read1} and ${read2}"
+read1Length=$(zcat $read1 | head -2 | tail -1 | wc -c)
+read2Length=$(zcat $read2 | head -2 | tail -1 | wc -c)
+combinedLength=`echo "$read1Length + $read2Length - 2" | bc`
+
+echo "${read1} is ${read1Length} and ${read2} is ${read2Length} for combined length of ${combinedLength}"
+BWASTART=$(date +%s)
+ssh jcorneveaux@pnap-login1 ~/SCRIPTS/PipeCleanerUpdate.sh ${SAMPLE_ID} insert_size warning rna
+
+######## BWA ALIGN READ 1 & 2 #####
+zcat ${read1} | head -4000000 | gzip > ${SAMPLE_ID}.R1.1M.fq.gz &
+zcat ${read2} | head -4000000 | gzip > ${SAMPLE_ID}.R2.1M.fq.gz &
+
+wait
+
+${BWA} aln -t ${ALN_THREADS} ${REF} ${SAMPLE_ID}.R1.1M.fq.gz > ${SAMPLE_ID}.R1.1M.sai &
+${BWA} aln -t ${ALN_THREADS} ${REF} ${SAMPLE_ID}.R2.1M.fq.gz > ${SAMPLE_ID}.R2.1M.sai &
+
+wait
+
+echo "bwa aln is done for read 1 and 2, begin pairing"
+
+####### BWA SAMPE, SORT "${SAMPLE_ID}" #####
+${BWA} sampe \
+-r "@RG\tID:${SAMPLE_ID}_${DATE}\tSM:${SAMPLE_ID}\tPL:ILLUMINA\tLB:${SAMPLE_ID}_Lib1" \
+-P ${REF} \
+-t ${THREADS} \
+${SAMPLE_ID}.R1.1M.sai ${SAMPLE_ID}.R2.1M.sai ${SAMPLE_ID}.R1.1M.fq.gz ${SAMPLE_ID}.R2.1M.fq.gz | \
+${SAMTOOLS} view -S -h -b -t ${REF}.fai - | \
+${SAMTOOLS} sort - ${SAMPLE_ID}.rnaInsert.sorted 
+
+if [[ $? -ne 0 ]]; then
+	echo "something went wrong with sampe, time to go"
+  exit
+fi
+
+echo "getting insert size metrics with picard"
+java -jar ${PICARD}CollectInsertSizeMetrics.jar \
+INPUT=${SAMPLE_ID}.rnaInsert.sorted.bam \
+OUTPUT=${SAMPLE_ID}.picInsertMetrics.txt \
+HISTOGRAM_FILE=${SAMPLE_ID}.picInsertMetrics.pdf \
+VALIDATION_STRINGENCY=SILENT \
+TMP_DIR=${TMP_DIR} \
+LEVEL=ALL_READS 2>&1 
+echo "getting insert size metrics with picard is DONE."
+
+echo "reading insert size from picard output"
+INNERDIST=`head -n 8 ${SAMPLE_ID}.picInsertMetrics.txt | tail -n 1 | cut -f5 | awk -v var1="$combinedLength" '{printf "%.0f\n", $1-var1}'`
+STDEV=`head -n 8 ${SAMPLE_ID}.picInsertMetrics.txt | tail -n 1 | cut -f6 | awk '{printf "%.0f\n", $1}'`
+echo "COMBINED READ LENGTH=$combinedLength (from $read1Length and $read2Length - 2)"
+echo "got INNERDIST=${INNERDIST} and STDEV=${STDEV}"
+
+ssh jcorneveaux@pnap-login1 ~/SCRIPTS/PipeCleanerUpdate.sh ${SAMPLE_ID} insert_size 0 rna
+
+rm ${SAMPLE_ID}.picInsertMetrics.pdf &
+rm ${SAMPLE_ID}.rnaInsert.sorted.bam &
+rm ${SAMPLE_ID}.R1.1M.sai &
+rm ${SAMPLE_ID}.R2.1M.sai &
+rm ${SAMPLE_ID}.picInsertMetrics.txt &
+rm ${SAMPLE_ID}.R1.1M.fq.gz &
+rm ${SAMPLE_ID}.R2.1M.fq.gz &
+
+echo -ne "\n\n`ls ${read1} ${read2}`\n\n BWA pairing took `bash ~/SCRIPTS/TimeOut.sh ${BWASTART}`\n begin tophat"
+
+TOPSTART=$(date +%s)
+
+ssh jcorneveaux@pnap-login1 ~/SCRIPTS/PipeCleanerUpdate.sh ${SAMPLE_ID} tophat2 warning rna
+
+perf stat -B ${TOPHAT} \
+--mate-inner-dist ${INNERDIST} \
+--mate-std-dev ${STDEV} \
+--output-dir $PBS_O_WORKDIR/tophat2 \
+--num-threads ${THREADS} \
+--transcriptome-index ${HUMAN_TRANS_FA} \
+--no-coverage-search \
+--b2-sensitive \
+--keep-fasta-order \
+--rg-id ${SAMPLE_ID}_${DATE} \
+--rg-sample ${SAMPLE_ID} \
+--rg-library ${SAMPLE_ID}_Lib1 \
+--rg-platform ILLUMINA \
+${HUMAN_REF_FA} \
+${read1} ${read2} 
+
+EXITSTAT=$?
+
+ssh jcorneveaux@pnap-login1 ~/SCRIPTS/PipeCleanerUpdate.sh ${SAMPLE_ID} tophat2 $EXITSTAT rna
+
+if [[ $EXITSTAT -ne 0 ]]; then
+	echo "something went wrong with tophat, time to go"
+  exit
+fi
+echo "\nTophat complete. Time: `bash ~/SCRIPTS/TimeOut.sh ${TOPSTART}`\n"

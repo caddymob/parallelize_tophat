@@ -1,0 +1,71 @@
+####Parameterized PBS Script ####
+#PBS -A tgen-204000
+#PBS -S /bin/bash
+#PBS -l walltime=96:00:00
+#PBS -l nodes=1
+#PBS -o ${HOME}/jobOuts/parallelize_tophat/${PBS_JOBNAME}_${PBS_JOBID}.o
+#PBS -M jcorneveaux@tgen.org
+#PBS -m abe
+#PBS -V
+#PBS -j oe
+
+START=$(date +%s)
+
+cd $PBS_O_WORKDIR
+
+source ~/SCRIPTS/parallelize_tophat/tophat2/export_paths-IDs_tophat-cufflinks.sh
+
+CUFFSTART=$(date +%s)
+
+perf stat -B ${CUFFLINKS} \
+ --quiet \
+ --no-update-check \
+ --GTF ${GTF} \
+ --multi-read-correct \
+ --max-intron-length 300000 \
+ --min-isoform-fraction 0.15 \
+ --junc-alpha 0.001 \
+ --small-anchor-fraction 0.12 \
+ --pre-mrna-fraction 0.15 \
+ --max-mle-iterations 5000 \
+ --library-type fr-unstranded \
+ --min-frags-per-transfrag 20 \
+ --overhang-tolerance 8 \
+ --max-bundle-length 3500000 \
+ --trim-3-avgcov-thresh 100 \
+ --trim-3-dropoff-frac 0.5 \
+ --3-overhang-tolerance 100 \
+ --intron-overhang-tolerance 10 \
+ --max-bundle-length 10000000 \
+ --label ${SAMPLE_ID} \
+ --mask-file ${MASK} \
+ --frag-bias-correct ${REF} \
+ --num-threads ${THREADS} \
+ ${SAMPLE_ID}.accepted_hits.bam 
+
+if [[ $? -ne 0 ]]; then
+	echo "something went wrong with cufflinks, time to go"
+  exit
+fi
+
+echo -e "\nCufflinks done `bash ~/SCRIPTS/TimeOut.sh ${CUFFSTART}`\n\nBegin cuffcompareD\n"
+
+mv transcripts.gtf ${SAMPLE_ID}.transcripts.gtf
+mv isoforms.fpkm_tracking ${SAMPLE_ID}.isoforms.fpkm_tracking
+mv genes.fpkm_tracking ${SAMPLE_ID}.genes.fpkm_tracking
+mv skipped.gtf ${SAMPLE_ID}.skipped.gtf
+
+COMPSTART=$(date +%s)
+${CUFFCOMPARE} \
+-r ${GTF} \
+-s ${REF} \
+-p ${SAMPLE_ID} \
+-o ${SAMPLE_ID}.stats \
+${SAMPLE_ID}.transcripts.gtf
+
+echo -e "\nCuffcompare is done `bash ~/SCRIPTS/TimeOut.sh ${COMPSTART}`\n\nBegin flagstat\n"
+
+END=$(date +%s)
+
+echo -e "\nYou are done, ${SAMPLE_ID} aligned, quantitated and ready to rock `date`\n"
+echo -e "\nTotal processing time was `bash ~/SCRIPTS/TimeOut.sh ${START}`\n\nHave a nice day =D\n"

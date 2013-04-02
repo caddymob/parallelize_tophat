@@ -1,0 +1,47 @@
+####Parameterized PBS Script ####
+#PBS -A tgen-204000
+#PBS -S /bin/bash
+#PBS -l walltime=48:00:00
+#PBS -o ${HOME}/jobOuts/parallelize_tophat/${PBS_JOBNAME}_${PBS_JOBID}.o
+#PBS -l nodes=1
+#PBS -j oe
+#PBS -V
+#PBS -M jcorneveaux@tgen.org
+#PBS -m abe
+
+cd ${PBS_O_WORKDIR}
+
+START=$(date +%s)
+
+#this export should transfer all my variables wherever I am
+source ~/SCRIPTS/parallelize_tophat/tophat2/export_paths-IDs_tophat-cufflinks.sh
+
+## BREAK HERE FOR CUFFLINKS, THEN DO CLEANUP
+
+rm R1* &
+rm R2* &
+
+RM_DIRS=`ls -d */ | grep -v jobLogs`
+
+for dirs in ${RM_DIRS[@]}
+do
+	echo "removing temp dir for $dirs"
+	echo "removing temp dir for $dirs" >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log
+	rm -rf $dirs &
+	sleep 10
+done
+
+wait
+
+echo -ne "\n\nFinished $SAMPLE_ID at `date` \n\n" >> ${JOB_PATH}/jobLogs/splitbam.${SAMPLE_ID}.timeCount.txt
+echo -ne "\n\nFinished $SAMPLE_ID at `date` \n\n" >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log
+
+echo -ne  "Finished merge with runtime: "
+bash ~/SCRIPTS/TimeOut.sh $START
+
+echo -ne "Finished merge, cufflinks, and cleanup with runtime: `bash ~/SCRIPTS/TimeOut.sh $START` \n\n"
+
+TOTALSTART=`cat ${JOB_PATH}/jobLogs/${SAMPLE_ID}.s`
+
+echo -ne "\n\nTotal parralized pipeline time with ${NODE_COUNT} nodes on `hostname` took: `bash ~/SCRIPTS/TimeOut.sh $TOTALSTART`\n" >> ${JOB_PATH}/jobLogs/splitbam.${SAMPLE_ID}.timeCount.txt
+
