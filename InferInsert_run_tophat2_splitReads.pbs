@@ -81,7 +81,14 @@ echo "reading insert size from picard output"
 INNERDIST=`head -n 8 ${SAMPLE_ID}_${SUFFIX}.picInsertMetrics.txt | tail -n 1 | cut -f5 | awk -v var1="$combinedLength" '{printf "%.0f\n", $1-var1}'`
 STDEV=`head -n 8 ${SAMPLE_ID}_${SUFFIX}.picInsertMetrics.txt | tail -n 1 | cut -f6 | awk '{printf "%.0f\n", $1}'`
 echo "COMBINED READ LENGTH=$combinedLength (from $read1Length and $read2Length - 2)"
-echo "got INNERDIST=${INNERDIST} and STDEV=${STDEV}"
+echo "Picard found INNERDIST=${INNERDIST} and STDEV=${STDEV}"
+
+if [ $INNERDIST -ge 500 ]; then
+	INNERDIST=50 
+	STDEV=50
+fi
+
+echo "Based on this we will use INNERDIST=${INNERDIST} and STDEV=${STDEV}"
 
 #ssh jcorneveaux@pnap-login1 ~/SCRIPTS/PipeCleanerUpdate.sh ${SAMPLE_ID} insert_size 0 rna
 
