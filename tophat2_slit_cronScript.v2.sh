@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SAMPLE_ID=$1
-messages="${HOME}/SCRIPTS/parallelize_tophat/tophat2/messages/"
+messages="${HOME}/SCRIPTS/parallelize_tophat/tophat2/messages"
 
 echo -ne "\n~~~~~~~ * ET PHONE HOME $SAMPLE_ID `date` * ~~~~~~~\n"
 
@@ -23,7 +23,7 @@ do
 						-v SAMPLE_ID=${SAMPLE_ID},SUFFIX=${suffix},JOB_PATH=${JOB_PATH} \
 						-d ${JOB_PATH} \
 						-N ${SAMPLE_ID}_${suffix} \
-						~/pbsSCRIPTS/InferInsert_run_tophat2.pbs | sed -e 's/.newmoab.local//g'`
+						~/pbsSCRIPTS/InferInsert_run_tophat2.pbs | cut -f1 -d "."`
 					
 					if [ $? -ne 0 ]; then
 						echo -e "ERROR! ${suffix}_${SAMPLE_ID} did not submit right with exit ($?).... \nnap for a sec...."
@@ -34,14 +34,14 @@ do
 							-v SAMPLE_ID=${SAMPLE_ID},SUFFIX=${suffix},JOB_PATH=${JOB_PATH} \
 							-d ${JOB_PATH} \
 							-N ${SAMPLE_ID}_${suffix} \
-							~/pbsSCRIPTS/InferInsert_run_tophat2.pbs | sed -e 's/.newmoab.local//g'`
+							~/pbsSCRIPTS/InferInsert_run_tophat2.pbs | cut -f1 -d "."`
 						
 						echo -ne "Re-Submitted ${suffix} for ${SAMPLE_ID} with jobID: ${tmpName} - exit = ($?)\n"
 						sleep 30
 
 					fi
 
-					echo -ne "Submitted ${suffix} for ${SAMPLE_ID} with jobID: ${tmpName} - exit  = ($?)\n"
+					echo -ne "Submitted ${suffix} for ${SAMPLE_ID} with jobID: ${tmpName} - exit = ($?)\n"
 					jobId="$jobId:$tmpName"
 					sleep 5
 		
@@ -60,7 +60,7 @@ do
 		 echo -ne "\nSubmitted ${SAMPLE_ID} merge with jobID: ${tmpName} exit = ($?)\n"
 
 		 if [ $? -ne 0 ]; then
-			echo -ne "ERROR! ${SAMPLE_ID}  merge did not submit right...\n\n"
+			echo -ne "ERROR! ${SAMPLE_ID} merge did not submit right...\n\n"
 			sleep 30
 			echo "Trying merge again..."
 				tmpName=`qsub -W depend=afterok:${jobIDs} \
@@ -72,7 +72,7 @@ do
 					echo -ne "\nRe-Submitted ${SAMPLE_ID} merge with jobID: ${tmpName} exit = ($?)\n"
 			fi
 			
-			echo -ne  "\n#### Removing crontab entry for ${SAMPLE_ID} ####\n"
+			echo -ne "\n#### Removing crontab entry for ${SAMPLE_ID} ####\n"
 			crontab -l | grep ${SAMPLE_ID}
 			crontab -l | grep -v ${SAMPLE_ID} > crontab.new
 			crontab crontab.new

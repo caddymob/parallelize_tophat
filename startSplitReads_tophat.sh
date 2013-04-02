@@ -30,16 +30,15 @@ echo -ne "\nJOB PATH: ${JOB_PATH}\n"
 
 echo "${SAMPLE_ID} ${JOB_PATH}" > ${HOME}/SCRIPTS/parallelize_tophat/tophat2/messages/${SAMPLE_ID}.started
 
-splitJob=$(qsub \
- -v SAMPLE_ID=${SAMPLE_ID},FQ1=${FQ1},FQ2=${FQ2},JOB_PATH=${JOB_PATH},NODE_COUNT=${NODE_COUNT} \
+splitJob=$(qsub -v SAMPLE_ID=${SAMPLE_ID},FQ1=${FQ1},FQ2=${FQ2},JOB_PATH=${JOB_PATH},NODE_COUNT=${NODE_COUNT} \
  -N ${SAMPLE_ID}.Split \
- ~/SCRIPTS/parallelize_tophat/tophat2/make_split_reads.pbs | sed -e 's/.newmoab.local//g')
+ ~/SCRIPTS/parallelize_tophat/tophat2/make_split_reads.pbs | cut -f1 -d ".")
 
 echo -ne "\n\nSplitting ${FQ1} and ${FQ2} started with job ${splitJob} `date`\n"
 
 crontab -l > currentcrontabs
 
-echo "* * * * * bash ${HOME}/SCRIPTS/parallelize_tophat/tophat2/tophat2_slit_cronScript.v2.sh ${SAMPLE_ID} >> ${JOB_PATH}/${SAMPLE_ID}.cron.log"  >> ${SAMPLE_ID}_cron
+echo "* * * * * bash ${HOME}/SCRIPTS/parallelize_tophat/tophat2/tophat2_slit_cronScript.v2.sh ${SAMPLE_ID} >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log"  >> ${SAMPLE_ID}_cron
 
 cat currentcrontabs >> ${SAMPLE_ID}_cron
 crontab ${SAMPLE_ID}_cron

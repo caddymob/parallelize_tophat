@@ -61,9 +61,9 @@ SPLITS=`echo "${READ_COUNT} / ${READS_PER_SPLIT}" | bc`
 echo -ne "\n\nGetting read count complete `bash ~/SCRIPTS/TimeOut.sh ${START}`"
 
 echo -ne "\nThere are ${READ_COUNT} paired reads into ${SPLITS} for $READS_PER_SPLIT / fastq "
-echo -ne "\nThere are ${READ_COUNT} paired reads into ${SPLITS} for $READS_PER_SPLIT / fastq \n\n" >> ${JOB_PATH}/${SAMPLE_ID}.cron.log
+echo -ne "\nThere are ${READ_COUNT} paired reads into ${SPLITS} for $READS_PER_SPLIT / fastq \n\n" >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log
 
 ls R1* | grep -v sai | sed -e 's/R1//g' > ~/SCRIPTS/parallelize_tophat/tophat2/messages/${SAMPLE_ID}.suffs.txt
 
 echo -ne "\nsplitting fastqs took `bash ~/SCRIPTS/TimeOut.sh ${START}`\n\n"
-echo -ne "\nsplitting fastqs took `bash ~/SCRIPTS/TimeOut.sh ${START}`\n\n" >> ${JOB_PATH}/${SAMPLE_ID}.cron.log
+echo -ne "\nsplitting fastqs took `bash ~/SCRIPTS/TimeOut.sh ${START}`\n\n" >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log

@@ -45,14 +45,14 @@ O=${SAMPLE_ID}.accepted_hits.bam
 echo -ne "\n\nPicard is done merging $BAM_COUNT, which itself took: "
 bash ~/SCRIPTS/TimeOut.sh $MERGESTART
 
-echo -ne "\n\nPicard is done merging $BAM_COUNT, which itself took: `bash ~/SCRIPTS/TimeOut.sh $MERGESTART`" >> ${JOB_PATH}/${SAMPLE_ID}.cron.log
+echo -ne "\n\nPicard is done merging $BAM_COUNT, which itself took: `bash ~/SCRIPTS/TimeOut.sh $MERGESTART`" >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log
 
 ${SAMTOOLS} flagstat ${SAMPLE_ID}.accepted_hits.bam > ${SAMPLE_ID}.accepted_hits.flagstat 
 
 echo -ne "\n\nHere is the final bam flagstat:\n `cat ${SAMPLE_ID}.accepted_hits.flagstat`\n\n"
 
-echo -ne "\n\nHere is the final bam flagstat:\n `cat ${SAMPLE_ID}.accepted_hits.flagstat`\n\n" >> ${JOB_PATH}/${SAMPLE_ID}.cron.log
-cat ${SAMPLE_ID}.accepted_hits.flagstat >> ${JOB_PATH}/${SAMPLE_ID}.cron.log
+echo -ne "\n\nHere is the final bam flagstat:\n `cat ${SAMPLE_ID}.accepted_hits.flagstat`\n\n" >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log
+cat ${SAMPLE_ID}.accepted_hits.flagstat >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log
 
 echo -ne "\n\nmerge_bams done, start cufflinks, runtime: "
 bash ~/SCRIPTS/TimeOut.sh $START
@@ -61,9 +61,9 @@ STARTCUFF=$(date +%s)
 bash ~/SCRIPTS/RunCufflinks2.sh
 
 echo -ne "\n\ncufflinks done, now clean-up, time on cuff: `bash ~/SCRIPTS/TimeOut.sh ${STARTCUFF}`, total runtime: "
-echo -ne "\n\ncufflinks done, now clean-up, time on cuff: `bash ~/SCRIPTS/TimeOut.sh ${STARTCUFF}`, total runtime: " >> ${JOB_PATH}/${SAMPLE_ID}.cron.log
+echo -ne "\n\ncufflinks done, now clean-up, time on cuff: `bash ~/SCRIPTS/TimeOut.sh ${STARTCUFF}`, total runtime: " >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log
 bash ~/SCRIPTS/TimeOut.sh $START
-bash ~/SCRIPTS/TimeOut.sh $START >> ${JOB_PATH}/${SAMPLE_ID}.cron.log
+bash ~/SCRIPTS/TimeOut.sh $START >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log
 
 rm R1* &
 rm R2* &
@@ -73,15 +73,15 @@ RM_DIRS=`ls -d */ | grep -v jobLogs`
 for dirs in ${RM_DIRS[@]}
 do
 	echo "removing temp dir for $dirs"
-	echo "removing temp dir for $dirs" >> ${JOB_PATH}/${SAMPLE_ID}.cron.log
+	echo "removing temp dir for $dirs" >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log
 	rm -rf $dirs &
 	sleep 10
 done
 
 wait
 
-echo -ne "\n\nFinished $SAMPLE_ID at `date` \n\n" >> splitbam.${SAMPLE_ID}.timeCount.txt
-echo -ne "\n\nFinished $SAMPLE_ID at `date` \n\n" >> ${JOB_PATH}/${SAMPLE_ID}.cron.log
+echo -ne "\n\nFinished $SAMPLE_ID at `date` \n\n" >> ${JOB_PATH}/jobLogs/splitbam.${SAMPLE_ID}.timeCount.txt
+echo -ne "\n\nFinished $SAMPLE_ID at `date` \n\n" >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log
 
 echo -ne  "Finished merge with runtime: "
 bash ~/SCRIPTS/TimeOut.sh $START
