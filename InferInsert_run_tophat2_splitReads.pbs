@@ -38,16 +38,16 @@ combinedLength=`echo "$read1Length + $read2Length - 2" | bc`
 
 echo "${read1} is ${read1Length} and ${read2} is ${read2Length} for combined length of ${combinedLength}"
 BWASTART=$(date +%s)
-ssh jcorneveaux@pnap-login1 ~/SCRIPTS/PipeCleanerUpdate.sh ${SAMPLE_ID} insert_size warning rna
+#ssh jcorneveaux@pnap-login1 ~/SCRIPTS/PipeCleanerUpdate.sh ${SAMPLE_ID} insert_size warning rna
 
 ######## BWA ALIGN READ 1 & 2 #####
-zcat ${read1} | head -4000000 | gzip > ${SAMPLE_ID}.R1.1M.fq.gz &
-zcat ${read2} | head -4000000 | gzip > ${SAMPLE_ID}.R2.1M.fq.gz &
+zcat ${read1} | head -4000000 | gzip > ${SAMPLE_ID}_R1${SUFFIX}.1M.fq.gz &
+zcat ${read2} | head -4000000 | gzip > ${SAMPLE_ID}_R2${SUFFIX}.1M.fq.gz &
 
 wait
 
-${BWA} aln -t ${ALN_THREADS} ${REF} ${SAMPLE_ID}.R1.1M.fq.gz > ${SAMPLE_ID}.R1.1M.sai &
-${BWA} aln -t ${ALN_THREADS} ${REF} ${SAMPLE_ID}.R2.1M.fq.gz > ${SAMPLE_ID}.R2.1M.sai &
+${BWA} aln -t ${ALN_THREADS} ${BWA_REF} ${SAMPLE_ID}_R1${SUFFIX}.1M.fq.gz > ${SAMPLE_ID}_R1${SUFFIX}.1M.sai &
+${BWA} aln -t ${ALN_THREADS} ${BWA_REF} ${SAMPLE_ID}_R2${SUFFIX}.1M.fq.gz > ${SAMPLE_ID}_R2${SUFFIX}.1M.sai &
 
 wait
 
@@ -56,11 +56,11 @@ echo "bwa aln is done for read 1 and 2, begin pairing"
 ####### BWA SAMPE, SORT "${SAMPLE_ID}" #####
 ${BWA} sampe \
 -r "@RG\tID:${SAMPLE_ID}_${DATE}\tSM:${SAMPLE_ID}\tPL:ILLUMINA\tLB:${SAMPLE_ID}_Lib1" \
--P ${REF} \
+-P ${BWA_REF} \
 -t ${THREADS} \
-${SAMPLE_ID}.R1.1M.sai ${SAMPLE_ID}.R2.1M.sai ${SAMPLE_ID}.R1.1M.fq.gz ${SAMPLE_ID}.R2.1M.fq.gz | \
-${SAMTOOLS} view -S -h -b -t ${REF}.fai - | \
-${SAMTOOLS} sort - ${SAMPLE_ID}.rnaInsert.sorted 
+${SAMPLE_ID}_R1${SUFFIX}.1M.sai ${SAMPLE_ID}_R1${SUFFIX}.1M.sai ${SAMPLE_ID}_R1${SUFFIX}.1M.fq.gz ${SAMPLE_ID}_R1${SUFFIX}.1M.fq.gz | \
+${SAMTOOLS} view -S -h -b -t ${BWA_REF}.fai - | \
+${SAMTOOLS} sort - ${SAMPLE_ID}_${SUFFIX}.rnaInsert.sorted 
 
 if [[ $? -ne 0 ]]; then
 	echo "something went wrong with sampe, time to go"
@@ -69,9 +69,9 @@ fi
 
 echo "getting insert size metrics with picard"
 java -jar ${PICARD}CollectInsertSizeMetrics.jar \
-INPUT=${SAMPLE_ID}.rnaInsert.sorted.bam \
-OUTPUT=${SAMPLE_ID}.picInsertMetrics.txt \
-HISTOGRAM_FILE=${SAMPLE_ID}.picInsertMetrics.pdf \
+INPUT=${SAMPLE_ID}_${SUFFIX}.rnaInsert.sorted.bam \
+OUTPUT=${SAMPLE_ID}_${SUFFIX}.picInsertMetrics.txt \
+HISTOGRAM_FILE=${SAMPLE_ID}_${SUFFIX}.picInsertMetrics.pdf \
 VALIDATION_STRINGENCY=SILENT \
 TMP_DIR=${TMP_DIR} \
 LEVEL=ALL_READS 2>&1 
@@ -83,32 +83,32 @@ STDEV=`head -n 8 ${SAMPLE_ID}.picInsertMetrics.txt | tail -n 1 | cut -f6 | awk '
 echo "COMBINED READ LENGTH=$combinedLength (from $read1Length and $read2Length - 2)"
 echo "got INNERDIST=${INNERDIST} and STDEV=${STDEV}"
 
-ssh jcorneveaux@pnap-login1 ~/SCRIPTS/PipeCleanerUpdate.sh ${SAMPLE_ID} insert_size 0 rna
+#ssh jcorneveaux@pnap-login1 ~/SCRIPTS/PipeCleanerUpdate.sh ${SAMPLE_ID} insert_size 0 rna
 
-rm ${SAMPLE_ID}.picInsertMetrics.pdf &
-rm ${SAMPLE_ID}.rnaInsert.sorted.bam &
-rm ${SAMPLE_ID}.R1.1M.sai &
-rm ${SAMPLE_ID}.R2.1M.sai &
-rm ${SAMPLE_ID}.picInsertMetrics.txt &
-rm ${SAMPLE_ID}.R1.1M.fq.gz &
-rm ${SAMPLE_ID}.R2.1M.fq.gz &
+rm ${SAMPLE_ID}_${SUFFIX}.picInsertMetrics.pdf &
+rm ${SAMPLE_ID}_${SUFFIX}.rnaInsert.sorted.bam &
+rm ${SAMPLE_ID}_${SUFFIX}.R1${SUFFIX}.1M.sai &
+rm ${SAMPLE_ID}_${SUFFIX}.R2${SUFFIX}.1M.sai &
+rm ${SAMPLE_ID}_${SUFFIX}.picInsertMetrics.txt &
+rm ${SAMPLE_ID}_${SUFFIX}.R1.1M.fq.gz &
+rm ${SAMPLE_ID}_${SUFFIX}.R2.1M.fq.gz &
 
 echo -ne "\n\n`ls ${read1} ${read2}`\n\n BWA pairing took `bash ~/SCRIPTS/TimeOut.sh ${BWASTART}`\n begin tophat"
 
 TOPSTART=$(date +%s)
 
-ssh jcorneveaux@pnap-login1 ~/SCRIPTS/PipeCleanerUpdate.sh ${SAMPLE_ID} tophat2 warning rna
+#ssh jcorneveaux@pnap-login1 ~/SCRIPTS/PipeCleanerUpdate.sh ${SAMPLE_ID} tophat2 warning rna
 
 perf stat -B ${TOPHAT} \
 --mate-inner-dist ${INNERDIST} \
 --mate-std-dev ${STDEV} \
---output-dir $PBS_O_WORKDIR/tophat2 \
+--output-dir $PBS_O_WORKDIR/${SUFFIX} \
 --num-threads ${THREADS} \
 --transcriptome-index ${HUMAN_TRANS_FA} \
 --no-coverage-search \
 --b2-sensitive \
 --keep-fasta-order \
---rg-id ${SAMPLE_ID}_${DATE} \
+--rg-id ${SAMPLE_ID}_${SUFFIX} \
 --rg-sample ${SAMPLE_ID} \
 --rg-library ${SAMPLE_ID}_Lib1 \
 --rg-platform ILLUMINA \
@@ -117,7 +117,7 @@ ${read1} ${read2}
 
 EXITSTAT=$?
 
-ssh jcorneveaux@pnap-login1 ~/SCRIPTS/PipeCleanerUpdate.sh ${SAMPLE_ID} tophat2 $EXITSTAT rna
+#ssh jcorneveaux@pnap-login1 ~/SCRIPTS/PipeCleanerUpdate.sh ${SAMPLE_ID} tophat2 $EXITSTAT rna
 
 if [[ $EXITSTAT -ne 0 ]]; then
 	echo "something went wrong with tophat, time to go"

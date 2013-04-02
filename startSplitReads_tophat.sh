@@ -47,7 +47,7 @@ echo "* * * * * bash ${HOME}/SCRIPTS/parallelize_tophat/tophat2/tophat2_slit_cro
 cat currentcrontabs >> ${SAMPLE_ID}_cron
 crontab ${SAMPLE_ID}_cron
 
-echo -ne "Greetings, you added:\n\n`cat ${SAMPLE_ID}_cron` \n\nto a cronjob `date`\n\n" > ${SAMPLE_ID}.cron.log
+echo -ne "Greetings, you added:\n\n`cat ${SAMPLE_ID}_cron` \n\nto a cronjob `date`\n\n" > ./jobLogs/${SAMPLE_ID}.cron.log
 
 rm ${SAMPLE_ID}_cron
 rm currentcrontabs

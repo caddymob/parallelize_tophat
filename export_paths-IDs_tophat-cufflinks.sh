@@ -27,4 +27,3 @@ export TOPHAT=~/bin/tophat-2.0.4.Linux_x86_64/tophat2
 export VCF=${REF_DIR}/GRCh37/dbSNP137.vcf
 export THREADS=`grep -c ^processor /proc/cpuinfo`
 export ALN_THREADS=`echo $THREADS / 2 | bc`
-

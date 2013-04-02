@@ -23,7 +23,7 @@ do
 						-v SAMPLE_ID=${SAMPLE_ID},SUFFIX=${suffix},JOB_PATH=${JOB_PATH} \
 						-d ${JOB_PATH} \
 						-N ${SAMPLE_ID}_${suffix} \
-						~/pbsSCRIPTS/InferInsert_run_tophat2.pbs | cut -f1 -d "."`
+						~/SCRIPTS/parallelize_tophat/tophat2/InferInsert_run_tophat2_splitReads.pbs | cut -f1 -d "."`
 					
 					if [ $? -ne 0 ]; then
 						echo -e "ERROR! ${suffix}_${SAMPLE_ID} did not submit right with exit ($?).... \nnap for a sec...."
@@ -34,7 +34,7 @@ do
 							-v SAMPLE_ID=${SAMPLE_ID},SUFFIX=${suffix},JOB_PATH=${JOB_PATH} \
 							-d ${JOB_PATH} \
 							-N ${SAMPLE_ID}_${suffix} \
-							~/pbsSCRIPTS/InferInsert_run_tophat2.pbs | cut -f1 -d "."`
+							~/SCRIPTS/parallelize_tophat/tophat2/InferInsert_run_tophat2_splitReads.pbs | cut -f1 -d "."`
 						
 						echo -ne "Re-Submitted ${suffix} for ${SAMPLE_ID} with jobID: ${tmpName} - exit = ($?)\n"
 						sleep 30
@@ -52,7 +52,7 @@ do
 		echo -ne "\n$jobIDs are running InferInsert_run_tophat_split-reads.pbs\n\n" 
 
 		mergeJob=`qsub -W depend=afterok:${jobIDs} \
-		-v JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID} \
+		 -v JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID} \
 		 -d ${JOB_PATH} \
 		 -N ${SAMPLE_ID}.merge \
 		 ~/SCRIPTS/parallelize_tophat/tophat2/merge_bam_end.v2.pbs`
