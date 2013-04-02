@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SAMPLE_ID=$1
-messages="${HOME}/SCRIPTS/parallelize_tophat/tophat2/messages"
+messages="${HOME}/SCRIPTS/parallelize_tophat/tophat2/messages/"
 
 echo -ne "\n~~~~~~~ * ET PHONE HOME $SAMPLE_ID `date` * ~~~~~~~\n"
 

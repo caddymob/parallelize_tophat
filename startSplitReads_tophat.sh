@@ -31,7 +31,7 @@ echo -ne "\nJOB PATH: ${JOB_PATH}\n"
 echo "${SAMPLE_ID} ${JOB_PATH}" > ${HOME}/SCRIPTS/parallelize_tophat/tophat2/messages/${SAMPLE_ID}.started
 
 splitJob=$(qsub \
- -v SAMPLE_ID=${SAMPLE_ID},FQ1=${FQ1},FQ2=${FQ2},JOB_PATH=${JOB_PATH},NODE_COUNT=$NODE_COUNT \
+ -v SAMPLE_ID=${SAMPLE_ID},FQ1=${FQ1},FQ2=${FQ2},JOB_PATH=${JOB_PATH},NODE_COUNT=${NODE_COUNT} \
  -N ${SAMPLE_ID}.Split \
  ~/SCRIPTS/parallelize_tophat/tophat2/make_split_reads.pbs | sed -e 's/.newmoab.local//g')
 
