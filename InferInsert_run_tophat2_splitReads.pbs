@@ -20,7 +20,7 @@ else
 	TMP_DIR=/huentelman/tmp
 fi
 
-source ~/SCRIPTS/parallelize_tophat/tophat2/export_paths-IDs_tophat-cufflinks.sh
+source ${SCRIPTS_DIR}/export_paths-IDs_tophat-cufflinks.sh
 
 #MUST BE PASSED FROM SCRIPT
 #read1=`echo ${SAMPLE_ID}.R1.QC.fq.gz`
@@ -101,7 +101,7 @@ rm ${SAMPLE_ID}_${SUFFIX}.picInsertMetrics.txt &
 rm ${SAMPLE_ID}_R1${SUFFIX}.1M.fq &
 rm ${SAMPLE_ID}_R2${SUFFIX}.1M.fq &
 
-echo -ne "\n\n`ls ${read1} ${read2}`\n\n BWA pairing took `bash ~/SCRIPTS/parallelize_tophat/tophat2/TimeOut.sh ${BWASTART}`\n begin tophat"
+echo -ne "\n\n`ls ${read1} ${read2}`\n\n BWA pairing took `bash ${SCRIPTS_DIR}/TimeOut.sh ${BWASTART}`\n begin tophat"
 
 TOPSTART=$(date +%s)
 
@@ -135,4 +135,4 @@ fi
 rm R1${SUFFIX}
 rm R2${SUFFIX}
 
-echo -ne "\n\nTophat complete. Time: `bash ~/SCRIPTS/parallelize_tophat/tophat2/TimeOut.sh ${TOPSTART}`"
+echo -ne "\n\nTophat complete. Time: `bash ${SCRIPTS_DIR}/TimeOut.sh ${TOPSTART}`"

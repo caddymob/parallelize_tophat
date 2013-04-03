@@ -22,8 +22,8 @@ bash ~/SCRIPTS/parallelize_tophat/tophat2/startSplitReads_tophat.sh ${SAMPLE_ID}
 
 TODO:
 
-Things are still hard coded to: ~/SCRIPTS/parallelize_tophat/tophat2/
+#Things are still hard coded to: ~/SCRIPTS/parallelize_tophat/tophat2/
 
-Need to figure this one out...
+#Need to figure this one out...
 
 Divide and conquer!

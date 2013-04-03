@@ -1,9 +1,9 @@
 ####Parameterized PBS Script ####
 #PBS -A tgen-204000
 #PBS -S /bin/bash
-#PBS -l walltime=48:00:00
+#PBS -l walltime=04:00:00
 #PBS -o ${HOME}/jobOuts/parallelize_tophat/${PBS_JOBNAME}_${PBS_JOBID}.o
-#PBS -l nodes=1
+#PBS -l nodes=1:ppn=4
 #PBS -j oe
 #PBS -V
 #PBS -M jcorneveaux@tgen.org
@@ -14,7 +14,7 @@ cd ${JOB_PATH}
 START=$(date +%s)
 
 #this export should transfer all my variables wherever I am
-source ~/SCRIPTS/parallelize_tophat/tophat2/export_paths-IDs_tophat-cufflinks.sh
+source ${SCRIPTS_DIR}/export_paths-IDs_tophat-cufflinks.sh
 
 ## BREAK HERE FOR CUFFLINKS, THEN DO CLEANUP
 
@@ -37,11 +37,11 @@ echo -ne "\n\nFinished $SAMPLE_ID at `date` \n\n" >> ${JOB_PATH}/jobLogs/splitba
 echo -ne "\n\nFinished $SAMPLE_ID at `date` \n\n" >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log
 
 echo -ne  "Finished merge with runtime: "
-bash ~/SCRIPTS/parallelize_tophat/tophat2/TimeOut.sh $START
+bash ${SCRIPTS_DIR}/TimeOut.sh $START
 
-echo -ne "Finished merge, cufflinks, and cleanup with runtime: `bash ~/SCRIPTS/parallelize_tophat/tophat2/TimeOut.sh $START` \n\n"
+echo -ne "Finished merge, cufflinks, and cleanup with runtime: `bash ${SCRIPTS_DIR}/TimeOut.sh $START`\n"
 
 TOTALSTART=`cat ${JOB_PATH}/jobLogs/${SAMPLE_ID}.s`
 
-echo -ne "\n\nTotal parralized pipeline time with ${NODE_COUNT} nodes on `hostname` took: `bash ~/SCRIPTS/parallelize_tophat/tophat2/TimeOut.sh $TOTALSTART`\n" >> ${JOB_PATH}/jobLogs/splitbam.${SAMPLE_ID}.timeCount.txt
-
+echo -ne "Total parralized pipeline time with ${NODE_COUNT} nodes on `hostname` took: `bash ${SCRIPTS_DIR}/TimeOut.sh $TOTALSTART`\n" >> ${JOB_PATH}/jobLogs/splitbam.${SAMPLE_ID}.timeCount.txt
+echo $TOTALSTART >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.s

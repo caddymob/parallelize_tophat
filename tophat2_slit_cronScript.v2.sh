@@ -1,7 +1,12 @@
 #!/bin/bash
 
 SAMPLE_ID=$1
-messages="${HOME}/SCRIPTS/parallelize_tophat/tophat2/messages"
+#messages="${HOME}/SCRIPTS/parallelize_tophat/tophat2/messages"
+
+SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+messages="${SCRIPTS_DIR}/messages"
+
+echo "script dir is $SCRIPTS_DIR"
 
 echo -ne "\n~~~~~~~ * ET PHONE HOME $SAMPLE_ID `date` * ~~~~~~~\n"
 
@@ -20,10 +25,10 @@ do
 		for suffix in ${SUFFS[@]}
 			do
 					tmpName=`qsub \
-						-v SAMPLE_ID=${SAMPLE_ID},SUFFIX=${suffix},JOB_PATH=${JOB_PATH} \
+						-v SAMPLE_ID=${SAMPLE_ID},SUFFIX=${suffix},JOB_PATH=${JOB_PATH},SCRIPTS_DIR=${SCRIPTS_DIR} \
 						-d ${JOB_PATH} \
 						-N ${SAMPLE_ID}_${suffix} \
-						~/SCRIPTS/parallelize_tophat/tophat2/InferInsert_run_tophat2_splitReads.pbs | cut -f1 -d "."`
+						${SCRIPTS_DIR}/InferInsert_run_tophat2_splitReads.pbs | cut -f1 -d "."`
 					
 					if [ $? -ne 0 ]; then
 						echo -e "ERROR! ${suffix}_${SAMPLE_ID} did not submit right with exit ($?).... \nnap for a sec...."
@@ -31,10 +36,10 @@ do
 						echo "Trying ${suffix}_${SAMPLE_ID} again..."
 						
 							tmpName=`qsub \
-							-v SAMPLE_ID=${SAMPLE_ID},SUFFIX=${suffix},JOB_PATH=${JOB_PATH} \
+							-v SAMPLE_ID=${SAMPLE_ID},SUFFIX=${suffix},JOB_PATH=${JOB_PATH},SCRIPTS_DIR=${SCRIPTS_DIR} \
 							-d ${JOB_PATH} \
 							-N ${SAMPLE_ID}_${suffix} \
-							~/SCRIPTS/parallelize_tophat/tophat2/InferInsert_run_tophat2_splitReads.pbs | cut -f1 -d "."`
+							${SCRIPTS_DIR}/InferInsert_run_tophat2_splitReads.pbs | cut -f1 -d "."`
 						
 						echo -ne "Re-Submitted ${suffix} for ${SAMPLE_ID} with jobID: ${tmpName} - exit = ($?)\n"
 						sleep 30
@@ -52,15 +57,15 @@ do
 		echo -ne "\n$jobIDs are running InferInsert_run_tophat_split-reads.pbs\n\n" 
 			
 		BedJob=`qsub  -W depend=afterok:${jobIDs} \
-			-v JOB_PATH=$PWD,SAMPLE_ID=${SAMPLE_ID} \
+			-v JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID},SCRIPTS_DIR=${SCRIPTS_DIR} \
 			-N ${SAMPLE_ID}.MergeBeds \
-			~/SCRIPTS/parallelize_tophat/tophat2/merge_junction_beds.pbs | cut -f1 -d "."`
+			${SCRIPTS_DIR}/merge_junction_beds.pbs | cut -f1 -d "."`
 
 		mergeJob=`qsub -W depend=afterok:${jobIDs} \
-		 -v JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID} \
+		 -v JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID},SCRIPTS_DIR=${SCRIPTS_DIR} \
 		 -d ${JOB_PATH} \
 		 -N ${SAMPLE_ID}.merge \
-		 ~/SCRIPTS/parallelize_tophat/tophat2/merge_bam_end.v2.pbs`
+		 ${SCRIPTS_DIR}/merge_bam_end.v2.pbs`
 		 
 		 echo -ne "\nSubmitted ${SAMPLE_ID} merge with jobID: ${mergeJob} exit = ($?)\n"
 
@@ -69,26 +74,26 @@ do
 			sleep 30
 			echo "Trying merge again..."
 				mergeJob=`qsub -W depend=afterok:${jobIDs} \
-					-v JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID} \
+					-v JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID},SCRIPTS_DIR=${SCRIPTS_DIR} \
 					-d ${JOB_PATH} \
 		 			-N ${SAMPLE_ID}.merge \
-		 			~/SCRIPTS/parallelize_tophat/tophat2/merge_bam_end.v2.pbs | cut -f1 -d "."`
+		 			${SCRIPTS_DIR}/merge_bam_end.v2.pbs | cut -f1 -d "."`
 
 					echo -ne "\nRe-Submitted ${SAMPLE_ID} merge with jobID: ${mergeJob} exit = ($?)\n"
 			fi
 			
 		## INSERT CUFFLINKS HERE ##
 			cuffJob=`qsub -W depend=afterok:${mergeJob} \
-			-v JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID} \
+			-v JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID},SCRIPTS_DIR=${SCRIPTS_DIR} \
 			-N ${SAMPLE_ID}.cuff \
-			~/SCRIPTS/parallelize_tophat/tophat2/Run_Cufflinks.pbs | cut -f1 -d "."`
+			${SCRIPTS_DIR}/Run_Cufflinks.pbs | cut -f1 -d "."`
 	
 			echo -ne "\ncufflinks is started with jobID: $cuffJob\n"
 			
 			cleanJob=`qsub -W depend=afterok:${cuffJob} \
-			-v JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID} \
+			-v JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID},SCRIPTS_DIR=${SCRIPTS_DIR},NODE_COUNT=${NODE_COUNT} \
 			-N ${SAMPLE_ID}.clean \
-			~/SCRIPTS/parallelize_tophat/tophat2/clean_up.pbs | cut -f1 -d "."`
+			${SCRIPTS_DIR}/clean_up.pbs | cut -f1 -d "."`
 		
 			echo -ne "\ncleanup is started with jobID: $cleanJob\n"
 			
