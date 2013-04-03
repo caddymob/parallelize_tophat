@@ -80,5 +80,5 @@ echo -ne "\nThere are ${READ_COUNT} paired reads into ${SPLITS} for $READS_PER_S
 
 ls R1* | grep -v sai | sed -e 's/R1//g' > ~/SCRIPTS/parallelize_tophat/tophat2/messages/${SAMPLE_ID}.suffs.txt
 
-echo -ne "\nsplitting fastqs took `bash ~/SCRIPTS/TimeOut.sh ${START}`\n\n"
-echo -ne "\nsplitting fastqs took `bash ~/SCRIPTS/TimeOut.sh ${START}`\n\n" >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log
+echo -ne "\nsplitting fastqs took `bash ~/SCRIPTS/parallelize_tophat/tophat2/TimeOut.sh ${START}`\n\n"
+echo -ne "\nsplitting fastqs took `bash ~/SCRIPTS/parallelize_tophat/tophat2/TimeOut.sh ${START}`\n\n" >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log

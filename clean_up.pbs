@@ -37,11 +37,11 @@ echo -ne "\n\nFinished $SAMPLE_ID at `date` \n\n" >> ${JOB_PATH}/jobLogs/splitba
 echo -ne "\n\nFinished $SAMPLE_ID at `date` \n\n" >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log
 
 echo -ne  "Finished merge with runtime: "
-bash ~/SCRIPTS/TimeOut.sh $START
+bash ~/SCRIPTS/parallelize_tophat/tophat2/TimeOut.sh $START
 
-echo -ne "Finished merge, cufflinks, and cleanup with runtime: `bash ~/SCRIPTS/TimeOut.sh $START` \n\n"
+echo -ne "Finished merge, cufflinks, and cleanup with runtime: `bash ~/SCRIPTS/parallelize_tophat/tophat2/TimeOut.sh $START` \n\n"
 
 TOTALSTART=`cat ${JOB_PATH}/jobLogs/${SAMPLE_ID}.s`
 
-echo -ne "\n\nTotal parralized pipeline time with ${NODE_COUNT} nodes on `hostname` took: `bash ~/SCRIPTS/TimeOut.sh $TOTALSTART`\n" >> ${JOB_PATH}/jobLogs/splitbam.${SAMPLE_ID}.timeCount.txt
+echo -ne "\n\nTotal parralized pipeline time with ${NODE_COUNT} nodes on `hostname` took: `bash ~/SCRIPTS/parallelize_tophat/tophat2/TimeOut.sh $TOTALSTART`\n" >> ${JOB_PATH}/jobLogs/splitbam.${SAMPLE_ID}.timeCount.txt
 

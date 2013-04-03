@@ -56,9 +56,9 @@ O=${SAMPLE_ID}.unmapped.bam &
 
 wait
 
-echo -ne "\n\nPicard is done merging $BAM_COUNT, which itself took: `bash ~/SCRIPTS/TimeOut.sh $MERGESTART`\n"
+echo -ne "\n\nPicard is done merging $BAM_COUNT, which itself took: `bash ~/SCRIPTS/parallelize_tophat/tophat2/TimeOut.sh $MERGESTART`\n"
 
-echo -ne "\n\nPicard is done merging $BAM_COUNT, which itself took: `bash ~/SCRIPTS/TimeOut.sh $MERGESTART`\n" >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log
+echo -ne "\n\nPicard is done merging $BAM_COUNT, which itself took: `bash ~/SCRIPTS/parallelize_tophat/tophat2/TimeOut.sh $MERGESTART`\n" >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log
 
 ${SAMTOOLS} flagstat ${SAMPLE_ID}.accepted_hits.bam > ${SAMPLE_ID}.accepted_hits.flagstat 
 
@@ -67,4 +67,4 @@ echo -ne "\n\nHere is the final bam flagstat:\n `cat ${SAMPLE_ID}.accepted_hits.
 echo -ne "\n\nHere is the final bam flagstat:\n `cat ${SAMPLE_ID}.accepted_hits.flagstat`\n\n" >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log
 cat ${SAMPLE_ID}.accepted_hits.flagstat >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log
 
-echo -ne "\n\nmerge_bams done. Time: `bash ~/SCRIPTS/TimeOut.sh $START`"
+echo -ne "\n\nmerge_bams done. Time: `bash ~/SCRIPTS/parallelize_tophat/tophat2/TimeOut.sh $START`"

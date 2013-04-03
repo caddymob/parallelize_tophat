@@ -48,7 +48,7 @@ if [[ $? -ne 0 ]]; then
   exit
 fi
 
-echo -e "\nCufflinks done `bash ~/SCRIPTS/TimeOut.sh ${CUFFSTART}`\n\nBegin cuffcompareD\n"
+echo -e "\nCufflinks done `bash ~/SCRIPTS/parallelize_tophat/tophat2/TimeOut.sh ${CUFFSTART}`\n\nBegin cuffcompareD\n"
 
 mv transcripts.gtf ${SAMPLE_ID}.transcripts.gtf
 mv isoforms.fpkm_tracking ${SAMPLE_ID}.isoforms.fpkm_tracking
@@ -63,9 +63,9 @@ ${CUFFCOMPARE} \
 -o ${SAMPLE_ID}.stats \
 ${SAMPLE_ID}.transcripts.gtf
 
-echo -e "\nCuffcompare is done `bash ~/SCRIPTS/TimeOut.sh ${COMPSTART}`\n\nBegin flagstat\n"
+echo -e "\nCuffcompare is done `bash ~/SCRIPTS/parallelize_tophat/tophat2/TimeOut.sh ${COMPSTART}`\n\nBegin flagstat\n"
 
 END=$(date +%s)
 
 echo -e "\nYou are done, ${SAMPLE_ID} aligned, quantitated and ready to rock `date`\n"
-echo -e "\nTotal processing time was `bash ~/SCRIPTS/TimeOut.sh ${START}`\n\nHave a nice day =D\n"
+echo -e "\nTotal processing time was `bash ~/SCRIPTS/parallelize_tophat/tophat2/TimeOut.sh ${START}`\n\nHave a nice day =D\n"

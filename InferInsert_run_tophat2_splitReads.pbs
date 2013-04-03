@@ -101,7 +101,7 @@ rm ${SAMPLE_ID}_${SUFFIX}.picInsertMetrics.txt &
 rm ${SAMPLE_ID}_R1${SUFFIX}.1M.fq &
 rm ${SAMPLE_ID}_R2${SUFFIX}.1M.fq &
 
-echo -ne "\n\n`ls ${read1} ${read2}`\n\n BWA pairing took `bash ~/SCRIPTS/TimeOut.sh ${BWASTART}`\n begin tophat"
+echo -ne "\n\n`ls ${read1} ${read2}`\n\n BWA pairing took `bash ~/SCRIPTS/parallelize_tophat/tophat2/TimeOut.sh ${BWASTART}`\n begin tophat"
 
 TOPSTART=$(date +%s)
 
@@ -135,4 +135,4 @@ fi
 rm R1${SUFFIX}
 rm R2${SUFFIX}
 
-echo -ne "\n\nTophat complete. Time: `bash ~/SCRIPTS/TimeOut.sh ${TOPSTART}`"
+echo -ne "\n\nTophat complete. Time: `bash ~/SCRIPTS/parallelize_tophat/tophat2/TimeOut.sh ${TOPSTART}`"
