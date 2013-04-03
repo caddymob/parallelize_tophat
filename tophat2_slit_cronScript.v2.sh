@@ -67,7 +67,7 @@ do
 					-v JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID} \
 					-d ${JOB_PATH} \
 		 			-N ${SAMPLE_ID}.merge \
-		 			~/SCRIPTS/parallelize_tophat/tophat2/merge_bam_end.v2.pbs`
+		 			~/SCRIPTS/parallelize_tophat/tophat2/merge_bam_end.v2.pbs | cut -f1 -d "."`
 
 					echo -ne "\nRe-Submitted ${SAMPLE_ID} merge with jobID: ${mergeJob} exit = ($?)\n"
 			fi
@@ -76,16 +76,16 @@ do
 			cuffJob=`qsub -W depend=afterok:${mergeJob} \
 			-v JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID} \
 			-N ${SAMPLE_ID}.cuff \
-			~/SCRIPTS/parallelize_tophat/tophat2/Run_Cufflinks.pbs`
+			~/SCRIPTS/parallelize_tophat/tophat2/Run_Cufflinks.pbs | cut -f1 -d "."`
 	
-			echo -ne "\n cufflinks is started with jobID: $cuffJob\n"
+			echo -ne "\ncufflinks is started with jobID: $cuffJob\n"
 		
 			cleanJob=`qsub -W depend=afterok:${cuffJob} \
 			-v JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID} \
 			-N ${SAMPLE_ID}.clean \
-			~/SCRIPTS/parallelize_tophat/tophat2/clean_up.pbs`
+			~/SCRIPTS/parallelize_tophat/tophat2/clean_up.pbs | cut -f1 -d "."`
 		
-			echo -ne "\n cleanup is started with jobID: $cleanJob\n"
+			echo -ne "\ncleanup is started with jobID: $cleanJob\n"
 			
 			echo -ne "\n#### Removing crontab entry for ${SAMPLE_ID} ####\n"
 			crontab -l | grep ${SAMPLE_ID}

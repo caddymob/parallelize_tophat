@@ -16,7 +16,14 @@ Fastq format needs to be ${SAMPLE_ID}.R1.QC.fq.gz and ${SAMPLE_ID}.R2.QC.fq.gz
 
 Run it in the directory with your samples. 
 
+!!! User needs to set env stuff in: export_paths-IDs_tophat-cufflinks.sh
 
-bash ~/SCRIPTS/parallelize_tophat/tophat2/startSplitReads_tophat.sh ${SAMPLE_ID}
+bash ~/SCRIPTS/parallelize_tophat/tophat2/startSplitReads_tophat.sh ${SAMPLE_ID} ${NODE_COUNT}
+
+TODO:
+
+Things are still hard coded to: ~/SCRIPTS/parallelize_tophat/tophat2/
+
+Need to figure this one out...
 
 Divide and conquer!
