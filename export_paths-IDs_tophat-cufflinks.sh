@@ -9,6 +9,9 @@ else
   REF_DIR=~/resources
 fi
 
+export SCRIPT_PATH=$PWD
+export MERGE_BED=~/bin/bedtools-2.17.0/bin/mergeBed
+
 export PATH=$PATH:${HOME}/bin
 export DATE=`echo -n $(date '+aln_%m-%d-%y')`
 

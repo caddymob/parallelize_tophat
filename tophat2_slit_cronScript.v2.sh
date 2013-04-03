@@ -79,8 +79,13 @@ do
 			~/SCRIPTS/parallelize_tophat/tophat2/Run_Cufflinks.pbs | cut -f1 -d "."`
 	
 			echo -ne "\ncufflinks is started with jobID: $cuffJob\n"
-		
-			cleanJob=`qsub -W depend=afterok:${cuffJob} \
+			
+			MergJob=`qsub \
+			-v JOB_PATH=$PWD,SAMPLE_ID=${SAMPLE_ID} \
+			-N ${SAMPLE_ID}.MergeBeds \
+			~/SCRIPTS/parallelize_tophat/tophat2/merge_junction_beds.pbs | cut -f1 -d "."`
+			
+			cleanJob=`qsub -W depend=afterok:${cuffJob}:${MergJob} \
 			-v JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID} \
 			-N ${SAMPLE_ID}.clean \
 			~/SCRIPTS/parallelize_tophat/tophat2/clean_up.pbs | cut -f1 -d "."`

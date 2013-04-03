@@ -9,7 +9,7 @@
 #PBS -M jcorneveaux@tgen.org
 #PBS -m abe
 
-cd ${PBS_O_WORKDIR}
+cd ${JOB_PATH}
 
 START=$(date +%s)
 

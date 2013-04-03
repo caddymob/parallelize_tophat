@@ -11,7 +11,7 @@
 
 START=$(date +%s)
 
-cd $PBS_O_WORKDIR
+cd ${JOB_PATH}
 
 echo $HOSTNAME | grep pnap
 if [ "$?" -eq 0 ]; then
@@ -110,7 +110,7 @@ TOPSTART=$(date +%s)
 perf stat -B ${TOPHAT} \
 --mate-inner-dist ${INNERDIST} \
 --mate-std-dev ${STDEV} \
---output-dir $PBS_O_WORKDIR/${SUFFIX} \
+--output-dir ${JOB_PATH}/${SUFFIX} \
 --num-threads ${THREADS} \
 --transcriptome-index ${HUMAN_TRANS_FA} \
 --no-coverage-search \
