@@ -29,10 +29,6 @@ ${MERGE_BED} ${INS} > ${SAMPLE_ID}.insertions.bed &
 
 wait
 
-echo -ne "\n\nFinished ${MERGE_BED} on $SAMPLE_ID at `date` \n\n" >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log
-
-echo -ne  "Finished merge with runtime: "
-bash ~/SCRIPTS/parallelize_tophat/tophat2/TimeOut.sh $START
+echo -ne "\n\nFinished MERGE_BED on $SAMPLE_ID at `date` \n\n" >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log
 
 echo -ne "\n\n ${JUNK_COUNT} junctions merged on `hostname` took: `bash ~/SCRIPTS/parallelize_tophat/tophat2/TimeOut.sh $START`\n" >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log
-

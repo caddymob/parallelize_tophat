@@ -50,6 +50,11 @@ do
 		jobIDs=`echo $jobId | sed -e 's/^://g'`
 		
 		echo -ne "\n$jobIDs are running InferInsert_run_tophat_split-reads.pbs\n\n" 
+			
+		BedJob=`qsub  -W depend=afterok:${jobIDs} \
+			-v JOB_PATH=$PWD,SAMPLE_ID=${SAMPLE_ID} \
+			-N ${SAMPLE_ID}.MergeBeds \
+			~/SCRIPTS/parallelize_tophat/tophat2/merge_junction_beds.pbs | cut -f1 -d "."`
 
 		mergeJob=`qsub -W depend=afterok:${jobIDs} \
 		 -v JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID} \
@@ -80,12 +85,7 @@ do
 	
 			echo -ne "\ncufflinks is started with jobID: $cuffJob\n"
 			
-			MergJob=`qsub \
-			-v JOB_PATH=$PWD,SAMPLE_ID=${SAMPLE_ID} \
-			-N ${SAMPLE_ID}.MergeBeds \
-			~/SCRIPTS/parallelize_tophat/tophat2/merge_junction_beds.pbs | cut -f1 -d "."`
-			
-			cleanJob=`qsub -W depend=afterok:${cuffJob}:${MergJob} \
+			cleanJob=`qsub -W depend=afterok:${cuffJob} \
 			-v JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID} \
 			-N ${SAMPLE_ID}.clean \
 			~/SCRIPTS/parallelize_tophat/tophat2/clean_up.pbs | cut -f1 -d "."`
