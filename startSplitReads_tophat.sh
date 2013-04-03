@@ -22,6 +22,8 @@ mkdir -p jobLogs
 JOB_PATH=$PWD
 SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+mkdir -p ${SCRIPTS_DIR}/messages/
+
 echo "Scripts are in ${SCRIPTS_DIR}"
 
 echo "Began $SAMPLE_ID test at `date`" > ./jobLogs/splitbam.${SAMPLE_ID}.timeCount.txt

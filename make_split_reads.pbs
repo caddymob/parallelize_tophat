@@ -1,7 +1,7 @@
 ####Parameterized PBS Script ####
 #PBS -A tgen-204000
 #PBS -S /bin/bash
-#PBS -l nodes=1
+#PBS -l nodes=1:ppn=4
 #PBS -l walltime=12:00:00
 #PBS -j oe
 #PBS -V
@@ -15,7 +15,6 @@ echo "Script dir: ${SCRIPTS_DIR}"
 
 START=$(date +%s)
 
-FQLINES=`zcat ${FQ1} | wc -l`
 READ_COUNT=`zcat ${FQ1} | wc -l`
 
 echo "We have ${READ_COUNT} paired reads to split"

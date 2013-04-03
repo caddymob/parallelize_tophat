@@ -18,9 +18,6 @@ source ${SCRIPTS_DIR}/export_paths-IDs_tophat-cufflinks.sh
 
 ## BREAK HERE FOR CUFFLINKS, THEN DO CLEANUP
 
-rm R1* &
-rm R2* &
-
 RM_DIRS=`ls -d */ | grep -v jobLogs`
 
 for dirs in ${RM_DIRS[@]}
