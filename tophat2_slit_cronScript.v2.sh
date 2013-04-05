@@ -1,25 +1,25 @@
 #!/bin/bash
 
 SAMPLE_ID=$1
-#messages="${HOME}/SCRIPTS/parallelize_tophat/tophat2/messages"
+NODE_COUNT=$2
+JOB_PATH=$3
 
 SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-messages="${SCRIPTS_DIR}/messages"
+messages="${JOB_PATH}/messages"
 
 echo  "~~~~~~~ * ET PHONE HOME $SAMPLE_ID `date` * ~~~~~~~"
 
 for toRun in `ls ${messages}`
 do
 	case $toRun in
-	${SAMPLE_ID}.started) 
-		JOB_PATH=`cat $messages/${SAMPLE_ID}.started | cut -f2 -d " "`
+	${SAMPLE_ID}.splitting) 
 	;;
 
 	${SAMPLE_ID}.suffs.txt)   echo -ne "\nWill submit split reads on $SAMPLE_ID `date`\n\n" 
 		echo -ne "\nSample ID is: $SAMPLE_ID\nJob Path is: $JOB_PATH\n\n"
 		SUFFS=`cat $messages/${SAMPLE_ID}.suffs.txt`
 		rm $messages/${SAMPLE_ID}.suffs.txt
-		rm $messages/$SAMPLE_ID.started
+		rm $messages/$SAMPLE_ID.splitting
 		for suffix in ${SUFFS[@]}
 			do
 					tmpName=`qsub \
@@ -90,6 +90,7 @@ do
 			
 			cleanJob=`qsub -W depend=afterok:${cuffJob} \
 			-v JOB_PATH=${JOB_PATH},SAMPLE_ID=${SAMPLE_ID},SCRIPTS_DIR=${SCRIPTS_DIR},NODE_COUNT=${NODE_COUNT} \
+			-d ${JOB_PATH} \
 			-N ${SAMPLE_ID}.clean \
 			${SCRIPTS_DIR}/clean_up.pbs | cut -f1 -d "."`
 		

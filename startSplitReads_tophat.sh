@@ -22,7 +22,7 @@ mkdir -p jobLogs
 JOB_PATH=$PWD
 SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-mkdir -p ${SCRIPTS_DIR}/messages/
+mkdir -p ${JOB_PATH}/messages/
 
 echo "Scripts are in ${SCRIPTS_DIR}"
 
@@ -30,14 +30,14 @@ echo "Began $SAMPLE_ID test at `date`" > ./jobLogs/splitbam.${SAMPLE_ID}.timeCou
 
 echo "$START" > ./jobLogs/${SAMPLE_ID}.s
 
-rm -f ${SCRIPTS_DIR}/messages/${SAMPLE_ID}.*
+rm -f ${JOB_PATH}/messages/${SAMPLE_ID}.*
 
 FQ1=`echo ${SAMPLE_ID}.R1.QC.fq.gz`
 FQ2=`echo ${SAMPLE_ID}.R2.QC.fq.gz`
 
 echo -ne "\nJOB PATH: ${JOB_PATH}\n"
 
-echo "${SAMPLE_ID} ${JOB_PATH}" > ${SCRIPTS_DIR}/messages/${SAMPLE_ID}.started
+echo "${SAMPLE_ID} ${JOB_PATH}" > ${JOB_PATH}/messages/${SAMPLE_ID}.splitting
 
 splitJob=$(qsub -v SAMPLE_ID=${SAMPLE_ID},FQ1=${FQ1},FQ2=${FQ2},JOB_PATH=${JOB_PATH},NODE_COUNT=${NODE_COUNT},SCRIPTS_DIR=${SCRIPTS_DIR} \
  -N ${SAMPLE_ID}.Split \
@@ -47,7 +47,7 @@ echo -ne "\n\nSplitting ${FQ1} ${FQ2} started with job ${splitJob} `date`\n"
 
 crontab -l > currentcrontabs
 
-echo "* * * * * bash ${SCRIPTS_DIR}/tophat2_slit_cronScript.v2.sh ${SAMPLE_ID} >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log" >> ${SAMPLE_ID}_cron
+echo "* * * * * bash ${SCRIPTS_DIR}/tophat2_slit_cronScript.v2.sh ${SAMPLE_ID} ${NODE_COUNT} ${JOB_PATH} >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log" >> ${SAMPLE_ID}_cron
 
 cat currentcrontabs >> ${SAMPLE_ID}_cron
 crontab ${SAMPLE_ID}_cron
