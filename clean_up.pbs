@@ -3,13 +3,19 @@
 #PBS -S /bin/bash
 #PBS -l walltime=04:00:00
 #PBS -o ${HOME}/jobOuts/parallelize_tophat/${PBS_JOBNAME}_${PBS_JOBID}.o
-#PBS -l nodes=1:ppn=4
+#PBS -l nodes=1
 #PBS -j oe
 #PBS -V
 #PBS -M jcorneveaux@tgen.org
 #PBS -m abe
 
 cd ${JOB_PATH}
+
+# Seems dumb but I've twice rm -rf'd my ${HOME}
+if [ $JOB_PATH == $HOME ]; then
+	echo "$JOB_PATH -eq $HOME"
+	exit
+fi
 
 START=$(date +%s)
 
@@ -25,7 +31,7 @@ do
 	echo "removing temp dir for $dirs"
 	echo "removing temp dir for $dirs" >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log
 	rm -rf $dirs &
-	sleep 10
+	sleep 1
 done
 
 wait
@@ -41,4 +47,6 @@ echo -ne "Finished merge, cufflinks, and cleanup with runtime: `bash ${SCRIPTS_D
 TOTALSTART=`cat ${JOB_PATH}/jobLogs/${SAMPLE_ID}.s`
 
 echo -ne "Total parralized pipeline time with ${NODE_COUNT} nodes on `hostname` took: `bash ${SCRIPTS_DIR}/TimeOut.sh $TOTALSTART`\n" >> ${JOB_PATH}/jobLogs/splitbam.${SAMPLE_ID}.timeCount.txt
-echo $TOTALSTART >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.s
+
+END=$(date +%s)
+echo $END >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.s
