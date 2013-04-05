@@ -6,7 +6,7 @@ SAMPLE_ID=$1
 SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 messages="${SCRIPTS_DIR}/messages"
 
-echo -ne "\n~~~~~~~ * ET PHONE HOME $SAMPLE_ID `date` * ~~~~~~~\n"
+echo  "~~~~~~~ * ET PHONE HOME $SAMPLE_ID `date` * ~~~~~~~"
 
 for toRun in `ls ${messages}`
 do

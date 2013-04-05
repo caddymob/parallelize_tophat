@@ -35,7 +35,6 @@ rm -f ${SCRIPTS_DIR}/messages/${SAMPLE_ID}.*
 FQ1=`echo ${SAMPLE_ID}.R1.QC.fq.gz`
 FQ2=`echo ${SAMPLE_ID}.R2.QC.fq.gz`
 
-
 echo -ne "\nJOB PATH: ${JOB_PATH}\n"
 
 echo "${SAMPLE_ID} ${JOB_PATH}" > ${SCRIPTS_DIR}/messages/${SAMPLE_ID}.started
@@ -44,21 +43,22 @@ splitJob=$(qsub -v SAMPLE_ID=${SAMPLE_ID},FQ1=${FQ1},FQ2=${FQ2},JOB_PATH=${JOB_P
  -N ${SAMPLE_ID}.Split \
  ${SCRIPTS_DIR}/make_split_reads.pbs | cut -f1 -d ".")
 
-echo -ne "\n\nSplitting ${FQ1} and ${FQ2} started with job ${splitJob} `date`\n"
+echo -ne "\n\nSplitting ${FQ1} ${FQ2} started with job ${splitJob} `date`\n"
 
 crontab -l > currentcrontabs
 
-echo "* * * * * bash ${SCRIPTS_DIR}/tophat2_slit_cronScript.v2.sh ${SAMPLE_ID} >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log"  >> ${SAMPLE_ID}_cron
+echo "* * * * * bash ${SCRIPTS_DIR}/tophat2_slit_cronScript.v2.sh ${SAMPLE_ID} >> ${JOB_PATH}/jobLogs/${SAMPLE_ID}.cron.log" >> ${SAMPLE_ID}_cron
 
 cat currentcrontabs >> ${SAMPLE_ID}_cron
 crontab ${SAMPLE_ID}_cron
 
-echo -ne "Greetings, you added:\n\n`cat ${SAMPLE_ID}_cron` \n\nto a cronjob `date`\n\n" > ./jobLogs/${SAMPLE_ID}.cron.log
+echo -ne "Greetings, you added:\n`cat ${SAMPLE_ID}_cron` \n\nto a cronjob `date`\n\n" > ./jobLogs/${SAMPLE_ID}.cron.log
 
 rm ${SAMPLE_ID}_cron
 rm currentcrontabs
 
 echo -ne "\nCron job will pick up from once fastqs are done splitting, just watch the queue explode...\n\n"
 
-echo -ne "\n\n`qstat | grep ${SAMPLE_ID} | tail -1`\n\n"
+sleep 1
+echo -ne "\n`qstat | grep ${SAMPLE_ID} | tail -1`\n\n"
  
