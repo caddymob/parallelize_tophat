@@ -13,7 +13,7 @@ cd ${JOB_PATH}
 
 # Seems dumb but I've twice rm -rf'd my ${HOME}
 if [ $JOB_PATH == $HOME ]; then
-	echo "$JOB_PATH -eq $HOME"
+	echo "$JOB_PATH is $HOME"
 	exit
 fi
 
@@ -24,7 +24,7 @@ source ${SCRIPTS_DIR}/export_paths-IDs_tophat-cufflinks.sh
 
 ## BREAK HERE FOR CUFFLINKS, THEN DO CLEANUP
 
-RM_DIRS=`ls -d */ | grep -ivE "bin|jobLogs|SCRIPTS"`
+RM_DIRS=`ls -d */ | grep -ivE "bin|jobLogs|SCRIPTS|resources|jobOuts"`
 
 for dirs in ${RM_DIRS[@]}
 do

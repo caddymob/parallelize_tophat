@@ -23,11 +23,11 @@ export PICARD=~/bin/picard-tools-current/
 export SAMTOOLS=~/bin/samtools
 export TOPHAT=~/bin/tophat-2.0.8.Linux_x86_64/tophat2
 
-export GTF=${REF_DIR}/GRCh37/bowtie2_b37/Homo_sapiens.GRCh37.66.gtf
+export GTF=${REF_DIR}/GRCh37/bowtie2_b37/Homo_sapiens.GRCh37.70.gtf
 export HUMAN_REF_FA=${REF_DIR}/GRCh37/bowtie2_b37/Homo_sapiens.GRCh37.62
 export REF=${HUMAN_REF_FA}.fa
-export HUMAN_TRANS_FA=${REF_DIR}/GRCh37/bowtie2_b37/Homo_sapiens.GRCh37.transcriptome/Homo_sapiens.GRCh37.66
-export MASK=${REF_DIR}/GRCh37/bowtie2_b37/Homo_sapiens.GRCh37.66.MASK.gtf
+export HUMAN_TRANS_FA=${REF_DIR}/GRCh37/bowtie2_b37/Homo_sapiens.GRCh37.70.transcriptome/Homo_sapiens.GRCh37.70
+export MASK=${REF_DIR}/GRCh37/bowtie2_b37/Homo_sapiens.GRCh37.70.MASK.gtf
 export BWA_REF=${REF_DIR}/GRCh37/Homo_sapiens.GRCh37.62.fa
 export VCF=${REF_DIR}/GRCh37/dbSNP137.vcf
 
