@@ -16,7 +16,7 @@ echo "Script dir: ${SCRIPTS_DIR}"
 START=$(date +%s)
 
 READ_COUNT=`zcat ${FQ1} | wc -l`
-PAIRED_READ_COUNT=`echo "${READS_COUNT} / 2"`
+PAIRED_READ_COUNT=`echo "${READS_COUNT} / 2" | bc`
 
 echo "We have ${READ_COUNT} paired reads to split"
 
