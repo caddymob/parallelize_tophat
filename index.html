@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <title>Parallelize tophat by caddymob</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>Parallelize tophat</h1>
+        <h2>Early work with Dell to optimise cluster usage and do a poor-mans scatter on torque cluster to divide and conquer tophat alignments with rapidity!</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/caddymob/parallelize_tophat/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/caddymob/parallelize_tophat/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/caddymob/parallelize_tophat" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <hr><p>Parallelize tophat. A cluster computing PBS based approach to Parallelize tophat!<br>
+by Jason Corneveaux, Bioinformatician, <a href="www.tgen.org">TGen Neurogenomics</a><br>
+02/13/2012  </p>
+
+<p>Began updates 3/27/2013  </p>
+
+<hr><p>This collection of PBS scripts splits up big FASTQ files and submits them
+to a PBS queue system to tophat2 align, then merge back together and run
+through cufflinks. </p>
+
+<p>Fastq format needs to be ${SAMPLE_ID}.R1.QC.fq.gz and ${SAMPLE_ID}.R2.QC.fq.gz </p>
+
+<p>Run it in the directory with your samples. </p>
+
+<p>!!! User needs to set env stuff in: export_paths-IDs_tophat-cufflinks.sh</p>
+
+<p>bash ~/SCRIPTS/parallelize_tophat/tophat2/startSplitReads_tophat.sh ${SAMPLE_ID} ${NODE_COUNT}</p>
+
+<p>TODO:</p>
+
+<pre><code>#Things are still hard coded to: ~/SCRIPTS/parallelize_tophat/tophat2/
+
+#Need to figure this one out...
+</code></pre>
+
+<h1>
+<a name="divide-and-conquer" class="anchor" href="#divide-and-conquer"><span class="octicon octicon-link"></span></a>Divide and conquer!</h1>
+      </section>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("40497a0f1bce21c9d7dcc8bd980f1fb6198ae12b");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
